@@ -1,0 +1,2 @@
+# Optional dependency for the generic TIA Portal S7 adapter and emulator test.
+python-snap7==3.1.0

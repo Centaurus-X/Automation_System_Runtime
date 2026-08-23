@@ -1,0 +1,809 @@
+# config/application/app_config.yaml
+config_version: 3
+
+# Welches Profil soll beim Start gemerged werden?
+# (base + profiles[active_profile])
+active_profile: "worker_simulation"
+
+base:
+  app:
+    # Default deployment identity. Node-specific profiles override this value
+    # together with config path, TLS identity, hardware allowlist and safety.
+    node_id: "fn-01"
+    site_id: "site-main"
+
+    # Entspricht: show_ascii = True
+    show_ascii: true
+
+    # Startup ASCII configuration currently runs before main().
+    # Move ASCII rendering into a function before making it YAML-controlled.
+    # und in main() nach Config-Load aufrufen.
+    ascii:
+      blank_lines_before_each_art: 3
+      blank_lines_after_each_art: 3
+      sleep_s_default: 2.0
+
+      # Entspricht der ascii_arts Liste im Code:
+      # (var_name, indent, rgb/palette oder None)
+      arts:
+        - name: "ASCII_TEXT"
+          indent: 3
+          palette: "CYBER_TEXT_PALETTE"
+        - name: "ASCII_CYBER_PUNK"
+          indent: 3
+          palette: "CYBERPALM_PALETTE"
+        - name: "ASCII_CTRL"
+          indent: 3
+          palette: null
+        - name: "ASCII_PENGUIN"
+          indent: 9
+          palette: null
+        - name: "METRICS_LEGENDE"
+          indent: 3
+          palette: null
+
+  executor:
+    # Entspricht: ThreadPoolExecutor(max_workers=40)
+    max_workers: 40
+
+  runtime:
+    # This is a mandatory Linux launch invariant. run_worker.sh exports the
+    # environment before Python starts; worker_preflight verifies that the
+    # effective interpreter state still matches this YAML policy.
+    python_cache:
+      bytecode_enabled: false
+      project_cache_forbidden: true
+      root_template: "/tmp/automation_system_pycache_{uid}"
+
+    queues:
+      # 0 means unbounded. Back-pressure limits can be introduced later
+      # after all consumers and overload policies are implemented.
+      maxsize: 0
+  
+    event_router:
+      enabled: true
+      thread_name: "EventRouter"
+      worker_threads: 4
+      ingress_timeout_s: 0.25
+      priority_enabled: true
+      priority_batch_max: 64
+
+    value_store:
+      # Non-blocking persistence outbox; 0 means unbounded.
+      change_queue_maxsize: 4096
+
+      # Reserve sequence ranges durably before publishing sensor telemetry.
+      # A crash or process restart therefore never reuses an accepted source
+      # sequence. The Master-provided floor remains an additional recovery gate.
+      sequence:
+        enabled: true
+        state_path: "_runtime/sensor_sequence.json"
+        reservation_size: 4096
+
+      persistence:
+        enabled: true
+        json_path: "_runtime/sensor_values.json"
+        flush_interval_s: 0.5
+        batch_size: 256
+
+    data_center:
+      json_path: "_config/config_data/device_state_data_v9_node_fn-01.json"
+      sqlite_path: "_runtime/config_data.sqlite3"
+      sqlite_enabled: false
+      # The authoritative config fingerprint includes list order. Preserve
+      # every Master-provided entity-array order, but keep V9 sections and
+      # object fields in the canonical human-readable order on disk.
+      json_style: "table"
+      indent_size: 2
+      sort_mode: "fingerprint_safe"
+      preserve_config_identity_on_save: true
+      allow_legacy_import: false
+      legacy_import_profile: "production_v2"
+      verify_on_load: true
+      verify_on_save: true
+  
+  thread_management:
+    thread_name: "ThreadManagement"
+    ingress_timeout_s: 0.25
+    join_timeout_s: 5.0
+    pool_min_workers: 2
+    pool_max_workers: 8
+
+    # Hardware ownership is opt-in. This keeps development and validation
+    # profiles from opening real fieldbus connections accidentally.
+    controllers_enabled: false
+    connections_enabled: false
+    rule_engine_enabled: true
+    rule_scope: "local_controllers"
+    fsm_scope: "local_controllers"
+
+  state_event_management:
+    thread_name: "StateEventManagement"
+    ingress_timeout_s: 0.25
+    request_timeout_s: 10.0
+    persistence_enabled: true
+    persistence_coalesce_s: 0.2
+    persist_json: true
+    persist_sqlite: false
+
+    # Optional defense-in-depth gates. The implementation is present, but the
+    # global switch remains off until project-specific limits/interlocks have
+    # been reviewed against the real plant.
+    safety:
+      enabled: false
+      dedupe_limit: 2048
+
+      rule_actions:
+        enabled: true
+        require_base_revision: true
+        enforce_writable_fields: true
+        enforce_required_mode: true
+        max_actions: 128
+        require_parameter_limits: false
+        parameter_limits:
+          target_temp_c: {min: 0.0, max: 800.0}
+          target_pressure_bar: {min: 0.0, max: 50.0}
+          max_pressure: {min: 0.0, max: 50.0}
+          flow_rate: {min: 0.0, max: 10000.0}
+          power: {min: 0.0, max: 100.0}
+          rpm: {min: 0.0, max: 3000.0}
+          stirring_rpm: {min: 0.0, max: 3000.0}
+        # Interlocks support config, process-state and live sensor conditions.
+        # Keep plant-specific definitions disabled until they are commissioned.
+        interlocks: []
+
+      external_commits:
+        enabled: true
+        require_base_revision: true
+        allowed_operations: ["scope_operations"]
+        allowed_patch_modes: ["set", "update"]
+        allow_arbitrary_paths: false
+        allowed_path_prefixes:
+          - "process_states"
+          - "controllers"
+          - "virtual_controllers"
+          - "sensors"
+          - "actuators"
+          - "processes"
+          - "rules"
+          - "rule_engine"
+          - "automation"
+        denied_path_prefixes:
+          - "credentials"
+          - "certificates"
+        # Empty means broker ACL/HMAC authenticated principals are not further
+        # restricted by an application-level allowlist.
+        allowed_principals: ["master_relay"]
+
+      actuator_tasks:
+        enabled: true
+        require_config_revision: true
+        require_limits: false
+        limits: []
+        interlocks: []
+
+  mqtt_interface:
+    # Required Control-Plane transport for the lab rollout on 192.168.0.82.
+    enabled: true
+    required: true
+    # The identity and MQTT component are required, but a temporary broker or
+    # Master outage must not prevent local field control after a Worker reboot.
+    # The transport keeps reconnecting and the durable outbox converges later.
+    startup_connection_required: false
+    topic_prefix: "automation/v1"
+    heartbeat_interval_s: 15.0
+    command_queue_maxsize: 256
+    dedupe_limit: 2048
+    max_command_age_s: 300.0
+    max_clock_skew_s: 30.0
+    allow_retained_commands: false
+    connect_wait_s: 5.0
+    flush_timeout_s: 2.0
+
+    transport:
+      host: "192.168.0.82"
+      port: 8883
+      keepalive_s: 30
+      clean_session: true
+      connect_timeout_s: 5.0
+      socket_timeout_s: 2.0
+      reconnect_min_s: 1.0
+      reconnect_max_s: 30.0
+      outbound_queue_maxsize: 4096
+      max_packet_size: 4194304
+      allow_insecure_transport: false
+      allow_insecure_tls: false
+      tls:
+        enabled: true
+        # Runtime PKI files are injected during deployment and are deliberately
+        # not shipped inside this Worker release archive.
+        ca_file: "_config/certs/mqtt_ca.crt"
+        cert_file: "_config/certs/worker_fn-01.crt"
+        key_file: "_config/certs/worker_fn-01.key"
+        server_hostname: "mqtt-broker"
+        insecure_skip_verify: false
+        require_ca_file: true
+        require_client_certificate: true
+        require_identity_uri: true
+        enforce_private_key_permissions: true
+
+    credentials:
+      # Secrets are intentionally read from the environment, never from YAML.
+      username_env: "MQTT_USERNAME"
+      password_env: "MQTT_PASSWORD"
+
+    command_auth:
+      # TLS + broker ACL is mandatory. HMAC is an optional second trust layer.
+      require_hmac: false
+      sign_outbound: false
+      secret_env: "MQTT_COMMAND_HMAC_SECRET"
+
+    commands:
+      require_base_revision: true
+      allowed:
+        - "config.patch"
+        - "config.update"
+        - "config.get"
+        - "config.shard.get"
+        - "config.sync"
+        - "runtime.status"
+      # Add config.append/config.delete/config.replace only after enabling the
+      # corresponding SEM safety modes and broker ACL permissions.
+
+    event_publication:
+      qos: 1
+      event_types:
+        - "SENSOR_VALUE_UPDATE"
+        - "CONFIG_COMMIT_APPLIED"
+        - "CONFIG_COMMIT_ROLLOUT_FAILED"
+        - "ACTUATOR_FEEDBACK"
+        - "FSM_STATE_UPDATE"
+        - "REMOTE_ACTUATOR_RESULT"
+        - "CONTROLLER_STATUS"
+        - "CROSS_STATE_UPDATE"
+        - "CROSS_FSM_STATE_UPDATE"
+
+  distributed_runtime:
+    # Worker-local authority is final; the Master is an optional RRMA relay/mirror.
+    enabled: true
+    role: "worker"
+    coordinator_node_id: "master-01"
+    journal_path: "_runtime/distributed_operations_{node_id}.sqlite3"
+
+    # Worker-local automation commits its runtime/process-state transition as
+    # final through the local SEM. The intent is durably journaled; an optional
+    # Master mirror converges lazily and never gates local field control.
+    # Every node-owned change remains Worker-authoritative. Cross-scope owner
+    # changes require the separate registry-sequenced transfer protocol.
+    local_automation_enabled: true
+    config_authority: "node_local"
+    config_sync_mode: "local_first"
+    conflict_policy: "worker_authoritative"
+
+    # The coordinator role is static and must also be enforced by broker ACLs.
+    # A broker-only leader election cannot provide a safe compare-and-swap.
+    replication_targets: []  # Empty means all enabled nodes in config_data.
+    registration_interval_s: 10.0
+    node_timeout_s: 45.0
+    retry_interval_s: 2.0
+    command_ttl_s: 60.0
+    proposal_timeout_s: 10.0
+    outbox_batch_size: 64
+    control_queue_maxsize: 512
+    result_queue_maxsize: 512
+
+    # A remote write is CONFIRMED only after hardware readback. A crash after
+    # dispatch but before the journaled result becomes UNCERTAIN and is not
+    # retried automatically. Enable retry only for commissioned idempotent I/O.
+    require_hardware_readback: true
+    allow_retry_after_uncertain: false
+
+  # File ingest is disabled in the production base profile. When an explicit
+  # lab profile enables it, a stable local JSON edit is converted to canonical
+  # scope operations and committed by the same Worker-local SEM authority.
+  config_file_sync:
+    enabled: false
+    poll_interval_s: 0.5
+    settle_time_s: 0.75
+    max_file_bytes: 33554432
+    wal_path: "_runtime/config_file_sync_{node_id}.json"
+    # The Worker writes this fsync-protected sidecar around every internal
+    # JSON materialisation. The watcher can therefore distinguish internal
+    # persistence from an operator edit by fingerprint, including after crash.
+    persistence_receipt_path: "_runtime/config_persistence_{node_id}.json"
+    proposal_timeout_s: 15.0
+    allow_local_runtime: true
+    allow_structural_proposals: true
+
+  # Cross execution is an independent logical shard.  It can be enabled in
+  # standalone and distributed modes alike; MQTT is needed only for targets
+  # owned by another node.  The simulator profile keeps it disabled because
+  # that profile intentionally opens one physical controller only.
+  cross_runtime:
+    enabled: false
+    node_id: "fn-01"
+    domain_id: "cross-fn-01-default"
+    config_path: "_config/config_data/device_state_data_v8_cross_fn-01.json"
+    snapshot_path: "_runtime/cross_snapshot_{node_id}_{domain_id}.json"
+    initial_revision: 1
+    queue_maxsize: 1024
+    ingress_timeout_s: 0.25
+    join_timeout_s: 5.0
+    apply_timeout_s: 5.0
+    max_signal_age_s: 15.0
+
+  paths:
+    # Diese Pfade sind absichtlich relativ zum project_root gedacht.
+    # project_root = normpath(BASE_DIR/..), BASE_DIR ist src/
+    resolve_relative_to_project_root: true
+
+    # Entspricht im Code:
+    # CONFIG_PATH  -> ../config/___device_state_data.json
+    # CONFIG_PATH_ -> ../config/___device_state_data_.json  (Test-Referenz)
+    device_state_json: "_config/config_data/device_state_data_v9_node_fn-01.json"
+    device_state_json_test: "_config/config_data/device_state_data_v9_node_fn-01.json"
+
+  network:
+    # Entspricht LOCAL_MODE (via ENV LOCAL_MODE Default "0" => False)
+    local_mode: true   # true
+
+    master:
+      # Entspricht _get_config defaults:
+      # Legacy WebSocket setting only. The Control Plane communicates with
+      # this Worker through MQTT and does not expose a Worker WS port.
+      ip: "192.168.0.82"
+      protocol: "ws"
+      use_ipv6: false
+
+      # Entspricht:
+      # WEBSOCKET_PORT_WORKER default 8000
+      # WEBSOCKET_PORT_CLIENT default 8001
+      websocket_port_worker: 8000
+      websocket_port_client: 8001
+
+      # Entspricht master_node_local ip_override="localhost"
+      local_ip_override: "localhost"
+
+    websocket_client:
+      # Entspricht t_ws_client create_thread(...)
+      initial_subscriptions: []
+      auto_reconnect: true
+      extra_headers: null
+
+    # Wichtig, weil dein Code _get_config() aus ENV liest:
+    # Wenn enabled=true, kann der Loader diese YAML-Werte als ENV exportieren,
+    # damit _get_config/build_master_url_lazy automatisch "richtig" sind.
+    env_export:
+      enabled: true
+      override_existing_env: true   # false
+      mapping:
+        local_mode: "LOCAL_MODE"
+        master_ip: "MASTER_IP"
+        port_worker: "WEBSOCKET_PORT_WORKER"
+        port_client: "WEBSOCKET_PORT_CLIENT"
+        protocol: "MASTER_PROTOCOL"
+        ipv6: "MASTER_IPV6"
+
+  worker_state:
+    # Entspricht:
+    # run_time = ['SEQUENTIAL','PARALLEL','PARALLEL+ASYNC','']
+    # worker_state['RUN_TIME'] = run_time[3]  -> ""
+    run_time_mode: ""
+
+    # Entspricht worker_state['PERSIST_DATA'] = True
+    persist_data: true
+
+  datastore:
+    # Entspricht: bypass_ds = True
+    bypass_device_state_load: true
+
+    # Entspricht: if not bypass_ds: load_device_state_data_partial()
+    device_state_load_enabled: false
+
+    # Wenn geladen werden soll: welches File?
+    # The code currently uses the *_ test reference through partial.
+    # Mit YAML ist sauber: "main" oder "test".
+    device_state_source: "test"   # "main" | "test"
+
+    # Entspricht:
+    # if worker_state["LOCAL_MODE"] and bypass_ds: threads.append(t_worker_datastore)
+    start_datastore_runtime_thread_in_local_mode: true
+
+  cpu_probe:
+    # Entspricht start_cpu_probe(...):
+    enabled: true
+    interval_s: 1.0
+    top_n: 12
+    min_pct: 0.1
+    history_max: 300
+    log_top: true
+
+  system:
+    # Entspricht: time.sleep(1.0) nach initialize_system()
+    init_sleep_s: 1.0
+
+    # Entspricht: _system_init.log_level_test()
+    log_level_test: true
+
+  timing:
+    # Entspricht: while not shutdown_event.is_set(): time.sleep(5)
+    main_loop_sleep_s: 5.0
+
+    # Entspricht den time.sleep(...) zwischen Thread-Erzeugungen:
+    start_delays_s:
+      after_datastore: 2.4
+      after_event_broker_1: 1.0
+      after_event_broker_2: 1.0
+      after_thread_management: 1.0
+      after_process_state_management: 1.0
+      after_state_event_management: 1.0
+      after_gateway: 1.0
+      after_websocket_component: 1.0
+
+  shutdown:
+    nudge_queues:
+      enabled: true
+
+      # Entspricht _nudge_queues_for_shutdown(repeats=2)
+      repeats: 2
+
+      # Entspricht q.put(... timeout=0.1)
+      put_timeout_s: 0.1
+
+      # Represents the three wake-up sentinels: two stop dialects plus None.
+      stop_payloads:
+        - { _type: "__STOP__", _sentinel: true }
+        - { event_type: "__STOP__", _sentinel: true }
+        - null
+
+    # Entspricht: t.join(timeout=5.0)
+    join_timeout_s: 5.0
+
+    # Entspricht: enforce_sigkill_if_threads_stuck(timeout=10.0)
+    enforce_sigkill_timeout_s: 10.0
+
+    # Entspricht global_executor.shutdown(wait=True)
+    executor_shutdown_wait: true
+
+  env_overrides:
+    # Optionally set additional environment flags consumed by individual modules.
+    enabled: true
+    override_existing_env: false
+    values:
+      # Hinweis im Code: SEM_MASTER_SYNC_ENABLED wird im Modul async_state_event_management ausgewertet
+      SEM_MASTER_SYNC_ENABLED: "0"
+
+      # Header-Hinweis: LOG_PROFILE=debug_controller python ...
+      LOG_PROFILE: ""
+
+profiles:
+  # Explicit simulator profile. The base profile remains hardware-safe and
+  # performs no fieldbus I/O until this profile is selected via:
+  # AUTOMATION_PROFILE=worker_simulation ./run_worker.sh
+  worker_simulation:
+    app:
+      show_ascii: true
+
+    cpu_probe:
+      enabled: true
+
+    runtime:
+      value_store:
+        persistence:
+          # Keep the latest local sensor snapshot available in distributed
+          # operation as well. MQTT mirroring and local persistence are
+          # independent asynchronous consumers of the in-memory value store.
+          enabled: true
+
+    thread_management:
+      controllers_enabled: true
+      connections_enabled: true
+      # RuleEngine and FSM remain Worker-local in both standalone and
+      # distributed operation. The ownership projection excludes every rule
+      # that depends on or writes through a non-local controller.
+      rule_engine_enabled: true
+      rule_scope: "local_controllers"
+      fsm_scope: "local_controllers"
+      # This controller has an active virtual endpoint at 192.168.0.3:5020
+      # in device_state_data_v9_node_fn-01.json. No physical controller
+      # outside this allowlist is opened by the simulation profile.
+      controller_allowlist:
+        - "62671112-766c-59ed-b0ff-30a49d48f747"
+      # The simulator only needs one acquisition cycle every ten seconds.
+      # A controller or synchronized master config may override this default.
+      controller_timing_defaults:
+        "62671112-766c-59ed-b0ff-30a49d48f747":
+          poll_interval_s: 10.0
+          # The simulator discovers actuators only after an address is written.
+          # Read the current value and write the same value back exactly once.
+          # The runtime enforces an active virtual endpoint for this mode.
+          simulator_actuator_discovery: "noop_write"
+          batch_actuator_timeout: 0.5
+
+    state_event_management:
+      persistence_enabled: true
+
+      # Lab-only allowlist for the Control Plane E2E actuator test. The base
+      # profile remains hardware-safe; this override is active only when the
+      # worker_simulation profile is selected.
+      safety:
+        enabled: true
+
+        # Local automatic RuleEngine actions are allowed through the SEM single
+        # writer. External arbitrary config commits remain disabled.
+        rule_actions:
+          enabled: true
+        external_commits:
+          enabled: true
+          allowed_operations: ["scope_operations"]
+          allowed_principals: ["master_relay", "worker_file_sync"]
+
+        # Allow the five baseline actuators plus V9 entities added at runtime
+        # for the selected simulator controller. Exact baseline limits take
+        # precedence; the final controller-scoped register limit keeps the
+        # lab E2E adaptive while config membership, current revision and local
+        # ownership remain mandatory. This override exists only in the
+        # explicitly selected worker_simulation profile.
+        actuator_tasks:
+          enabled: true
+          require_config_revision: true
+          require_limits: true
+          limits:
+            - controller_uuid: "62671112-766c-59ed-b0ff-30a49d48f747"
+              actuator_id: 1
+              allowed: [false, true]
+            - controller_uuid: "62671112-766c-59ed-b0ff-30a49d48f747"
+              actuator_id: 2
+              allowed: [false, true]
+            - controller_uuid: "62671112-766c-59ed-b0ff-30a49d48f747"
+              actuator_id: 3
+              min: 0
+              max: 65535
+            - controller_uuid: "62671112-766c-59ed-b0ff-30a49d48f747"
+              actuator_id: 4
+              allowed: [false, true]
+            - controller_uuid: "62671112-766c-59ed-b0ff-30a49d48f747"
+              actuator_id: 5
+              min: 0
+              max: 65535
+            - controller_uuid: "62671112-766c-59ed-b0ff-30a49d48f747"
+              min: 0
+              max: 65535
+          interlocks: []
+
+    config_file_sync:
+      enabled: true
+
+  # Hardware-owner profile for the separately sharded fn-02 Worker. It has no
+  # Cross engine of its own in this release, but receives UUID-only remote
+  # actuator intents and resolves them exclusively against its local shard.
+  worker_fn02:
+    app:
+      node_id: "fn-02"
+      show_ascii: true
+
+    runtime:
+      data_center:
+        json_path: "_config/config_data/device_state_data_v9_node_fn-02.json"
+        allow_legacy_import: false
+      legacy_import_profile: "production_v2"
+      value_store:
+        persistence:
+          enabled: true
+          json_path: "_runtime/sensor_values_fn-02.json"
+
+    paths:
+      device_state_json: "_config/config_data/device_state_data_v9_node_fn-02.json"
+      device_state_json_test: "_config/config_data/device_state_data_v9_node_fn-02.json"
+
+    mqtt_interface:
+      transport:
+        tls:
+          cert_file: "_config/certs/worker_fn-02.crt"
+          key_file: "_config/certs/worker_fn-02.key"
+
+    distributed_runtime:
+      journal_path: "_runtime/distributed_operations_{node_id}.sqlite3"
+
+    cross_runtime:
+      enabled: false
+      node_id: "fn-02"
+      domain_id: "cross-fn-02-default"
+      config_path: ""
+
+    thread_management:
+      controllers_enabled: true
+      connections_enabled: true
+      rule_engine_enabled: true
+      rule_scope: "local_controllers"
+      fsm_scope: "local_controllers"
+      controller_allowlist:
+        - "06ab4528-f8a3-5ec7-a91f-eea79d60761e"
+
+    state_event_management:
+      persistence_enabled: true
+      safety:
+        enabled: true
+        rule_actions:
+          enabled: true
+        external_commits:
+          enabled: false
+        actuator_tasks:
+          enabled: true
+          require_config_revision: true
+          require_limits: true
+          limits:
+            - controller_uuid: "06ab4528-f8a3-5ec7-a91f-eea79d60761e"
+              actuator_id: 1
+              min: 0
+              max: 65535
+            - controller_uuid: "06ab4528-f8a3-5ec7-a91f-eea79d60761e"
+              actuator_id: 2
+              min: 0
+              max: 65535
+            - controller_uuid: "06ab4528-f8a3-5ec7-a91f-eea79d60761e"
+              actuator_id: 3
+              min: 0
+              max: 65535
+          interlocks: []
+
+  # Autonomous Worker with the same local RuleEngine/FSM/Automation and
+  # simulator fieldbus ownership, intentionally without Master or MQTT.
+  # Select explicitly with:
+  # AUTOMATION_PROFILE=standalone ./run_worker.sh
+  standalone:
+    mqtt_interface:
+      enabled: false
+      required: false
+      startup_connection_required: false
+
+    distributed_runtime:
+      enabled: false
+
+    config_file_sync:
+      enabled: false
+
+    thread_management:
+      controllers_enabled: true
+      connections_enabled: true
+      rule_engine_enabled: true
+      rule_scope: "local_controllers"
+      fsm_scope: "local_controllers"
+      controller_allowlist:
+        - "62671112-766c-59ed-b0ff-30a49d48f747"
+      controller_timing_defaults:
+        "62671112-766c-59ed-b0ff-30a49d48f747":
+          poll_interval_s: 10.0
+          simulator_actuator_discovery: "noop_write"
+          batch_actuator_timeout: 0.5
+
+    state_event_management:
+      persistence_enabled: true
+      safety:
+        enabled: true
+        rule_actions:
+          enabled: true
+        external_commits:
+          enabled: false
+        actuator_tasks:
+          enabled: true
+          require_config_revision: true
+          require_limits: true
+          limits:
+            - controller_uuid: "62671112-766c-59ed-b0ff-30a49d48f747"
+              actuator_id: 1
+              allowed: [false, true]
+            - controller_uuid: "62671112-766c-59ed-b0ff-30a49d48f747"
+              actuator_id: 2
+              allowed: [false, true]
+            - controller_uuid: "62671112-766c-59ed-b0ff-30a49d48f747"
+              actuator_id: 3
+              min: 0
+              max: 65535
+            - controller_uuid: "62671112-766c-59ed-b0ff-30a49d48f747"
+              actuator_id: 4
+              allowed: [false, true]
+            - controller_uuid: "62671112-766c-59ed-b0ff-30a49d48f747"
+              actuator_id: 5
+              min: 0
+              max: 65535
+          interlocks: []
+
+  # Local development enables LOCAL_MODE and the client WebSocket server.
+  local_dev:
+    mqtt_interface:
+      enabled: false
+      required: false
+    distributed_runtime:
+      enabled: false
+    config_file_sync:
+      enabled: false
+    network:
+      local_mode: true
+      master:
+        ip: "localhost"
+        websocket_port_worker: 8000
+        websocket_port_client: 8001
+    datastore:
+      bypass_device_state_load: true
+      device_state_load_enabled: false
+    cpu_probe:
+      enabled: true
+
+  # Production/Worker->Master: LOCAL_MODE=False, WS-Client zum Master aktiv
+  master_prod:
+    network:
+      local_mode: false
+      master:
+        # Legacy WebSocket profile; not used by the MQTT integration.
+        ip: "192.168.0.82"
+        websocket_port_worker: 8000
+        websocket_port_client: 8001
+    datastore:
+      bypass_device_state_load: true
+      device_state_load_enabled: false
+
+  # Unit/Integration-Tests: schnell, leise, deterministisch(er)
+  unit_test:
+    app:
+      show_ascii: false
+    cpu_probe:
+      enabled: false
+
+    mqtt_interface:
+      enabled: false
+      required: false
+
+    distributed_runtime:
+      enabled: false
+
+    config_file_sync:
+      enabled: false
+
+    runtime:
+      value_store:
+        sequence:
+          enabled: false
+        persistence:
+          enabled: false
+
+    thread_management:
+      pool_min_workers: 1
+      pool_max_workers: 2
+      controllers_enabled: false
+      connections_enabled: false
+
+    state_event_management:
+      persistence_enabled: false
+
+    datastore:
+      bypass_device_state_load: false
+      device_state_load_enabled: true
+      device_state_source: "test"
+
+    # Avoid artificial startup sleeps.
+    timing:
+      main_loop_sleep_s: 0.2
+      start_delays_s:
+        after_datastore: 0.0
+        after_event_broker_1: 0.0
+        after_event_broker_2: 0.0
+        after_thread_management: 0.0
+        after_process_state_management: 0.0
+        after_state_event_management: 0.0
+        after_gateway: 0.0
+        after_websocket_component: 0.0
+
+    shutdown:
+      join_timeout_s: 1.0
+      enforce_sigkill_timeout_s: 3.0
+
+    # Test-Ports (damit du nicht aus Versehen echte Ports blockierst)
+    network:
+      local_mode: true
+      master:
+        ip: "localhost"
+        websocket_port_worker: 18000
+        websocket_port_client: 18001
+
+

@@ -1,0 +1,60 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "Automation-System-Runtime-v0101",
+  "documentNamespace": "https://github.com/Centaurus-X/Automation_System_Runtime/spdx/0.101.0-v0101",
+  "creationInfo": {
+    "created": "2026-08-23T00:00:00Z",
+    "creators": [
+      "Tool: release-manifest",
+      "Organization: Centaurus-X"
+    ]
+  },
+  "packages": [
+    {
+      "name": "Automation System Runtime",
+      "SPDXID": "SPDXRef-Worker",
+      "versionInfo": "0.101.0-v0101",
+      "downloadLocation": "https://github.com/Centaurus-X/Automation_System_Runtime/releases/tag/v0.101.0",
+      "filesAnalyzed": false,
+      "licenseConcluded": "GPL-3.0-only",
+      "licenseDeclared": "GPL-3.0-only"
+    },
+    {
+      "name": "CPython",
+      "SPDXID": "SPDXRef-Python",
+      "versionInfo": "3.14 free-threaded",
+      "downloadLocation": "https://www.python.org/",
+      "filesAnalyzed": false,
+      "licenseConcluded": "PSF-2.0",
+      "licenseDeclared": "PSF-2.0"
+    },
+    {
+      "name": "PyYAML",
+      "SPDXID": "SPDXRef-PyYAML",
+      "versionInfo": "6.0.3",
+      "downloadLocation": "https://pypi.org/project/PyYAML/6.0.3/",
+      "filesAnalyzed": false,
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT"
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Worker"
+    },
+    {
+      "spdxElementId": "SPDXRef-Worker",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Python"
+    },
+    {
+      "spdxElementId": "SPDXRef-Worker",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-PyYAML"
+    }
+  ]
+}

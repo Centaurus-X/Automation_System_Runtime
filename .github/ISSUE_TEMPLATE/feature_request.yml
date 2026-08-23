@@ -1,0 +1,34 @@
+name: Feature request
+description: Propose an evidence-backed runtime or documentation improvement.
+title: "[Feature]: "
+labels: [enhancement, triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What operational or engineering problem needs to be solved?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Authority, safety and failure boundaries
+      description: Explain ownership, retries, stale work and failure behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: textarea
+    id: validation
+    attributes:
+      label: Proposed validation
+      description: Which tests or measurements should prove the change?

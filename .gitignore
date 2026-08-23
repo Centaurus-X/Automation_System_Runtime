@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+.venv/
+venv/
+.verification_deps/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Runtime state and sensitive identity material
+_runtime/*
+!_runtime/.gitkeep
+logs/*
+!logs/.gitkeep
+_config/certs/*
+!_config/certs/README.md
+*.key
+*.p12
+*.pfx
+*.pem
+*.sqlite
+*.sqlite3
+*.db
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.local.yaml
+*.local.yml
+*.local.json
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Build and coverage output
+build/
+dist/
+*.egg-info/
+.coverage
+htmlcov/
+coverage.xml

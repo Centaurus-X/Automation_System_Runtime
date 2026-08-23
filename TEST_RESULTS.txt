@@ -1,0 +1,17 @@
+AUTOMATION SYSTEM automation_system_v0101
+QUALIFIKATIONSSTAND: 2026-07-27
+
+PASS  54/54 ausführbare Worker-Testdateien.
+PASS  Authority V5: node_local Transfer, Restore-Quarantäne und exakte ACKs.
+PASS  Persistente SQLite-Authority, Mirror-Outbox und monotone Registry-View.
+PASS  SEM-/File-WAL-Pfade, Safety-Policy und fail-closed Recovery.
+PASS  Cross-Owner-Accept und Hardware-/Execution-Epoch-Fencing.
+PASS  Canonical Contract Authority 2.0 und Type Schema 2.0.0.
+PASS  Normatives V005-Standards-Gate und funktionaler AST-Style-Gate.
+PASS  Keine Klassen, Decorators, Lambdas, Type Hints oder fremden Library-Roots.
+PASS  Aktive JSON-/YAML-/UTF-8-, Python- und Shell-Syntaxprüfung.
+PASS  Linux-Clean-Room-Rollout mit CPython 3.14.6t, OpenSSL/mTLS und POSIX-Gates.
+PASS  Reale Modbus-I/O- und MQTT-Telemetrie gegen 192.168.0.3:5020.
+PASS  Auto-Admission, Heartbeats und exakte Node-Mirror-Konvergenz nach Neustart.
+PASS  execution_epoch=0 bleibt im Mirror-Record und SQLite-Outbox-Roundtrip erhalten.PASS  Gruppierte Runtime-Configs werden vor Mirror/Journal kanonisch als Node V9
+      bzw. Cross V8 gespeichert; der Type-Authority-Fingerprint bleibt identisch.

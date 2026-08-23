@@ -1,0 +1,15 @@
+# Preserve the byte-exact mixed line endings of the validated v0101 snapshot.
+# Shell entry points are the only exception: the runtime's release gate requires
+# LF-only shell scripts on Linux.
+* -text
+*.sh text eol=lf
+.github/**/*.yml text eol=lf
+.github/**/*.yaml text eol=lf
+
+*.zip binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.p12 binary
+*.pfx binary

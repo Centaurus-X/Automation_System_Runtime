@@ -1,0 +1,55 @@
+name: Bug report
+description: Report reproducible runtime behavior in a safe lab environment.
+title: "[Bug]: "
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include credentials, private keys, plant data or vulnerability details.
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: v0.101.0 or commit SHA
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: Linux distribution, Python build, profile and adapter backend
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Safe reproduction
+      description: Provide a minimal simulator/lab reproduction with sanitized data.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Sanitized evidence
+      description: Logs, revisions, epochs and fingerprints without secrets or plant identifiers.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety confirmation
+      options:
+        - label: This reproduction does not target live equipment without explicit authorization.
+          required: true
+        - label: I have removed credentials, private keys and confidential plant information.
+          required: true

@@ -1,0 +1,199 @@
+{
+  "actuator_types": [
+    {"actuator_type": "valve","actuator_types_id": 1},
+    {"actuator_type": "boiling_plate","actuator_types_id": 2},
+    {"actuator_type": "heating_coil","actuator_types_id": 3},
+    {"actuator_type": "cooling_pump","actuator_types_id": 4},
+    {"actuator_type": "peristaltic_pump","actuator_types_id": 5},
+    {"actuator_type": "vacuum_pump","actuator_types_id": 6},
+    {"actuator_type": "water_pump","actuator_types_id": 7},
+    {"actuator_type": "solenoid_valve","actuator_types_id": 8},
+    {"actuator_type": "reflux_valve","actuator_types_id": 9},
+    {"actuator_type": "stirrer_motor","actuator_types_id": 10},
+    {"actuator_type": "agitator","actuator_types_id": 11},
+    {"actuator_type": "mixing_motor","actuator_types_id": 12},
+    {"actuator_type": "filtration_pump","actuator_types_id": 13},
+    {"actuator_type": "drying_heater","actuator_types_id": 14},
+    {"actuator_type": "distillation_column","actuator_types_id": 15},
+    {"actuator_type": "evaporation_unit","actuator_types_id": 16},
+    {"actuator_type": "condensation_system","actuator_types_id": 17}
+  ],
+  "actuators": [
+    {"controller_key": "ctrl_wago_1","controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335","enabled": true,"local_controller_id": 1,"node_id": "fn-01","rows": [{"actuator_group": "A","actuator_id": 1,"address": 512,"bus_type": "modbus","function_type": "write_coil"},{"actuator_group": "A","actuator_id": 2,"address": 513,"bus_type": "modbus","function_type": "write_coil"}],"site_id": "site-main"},
+    {"controller_key": "ctrl_wago_2","controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","enabled": true,"local_controller_id": 2,"node_id": "fn-01","rows": [{"actuator_group": "B","actuator_id": 1,"address": 514,"bus_type": "modbus","function_type": "write_coil"},{"actuator_group": "B","actuator_id": 2,"address": 515,"bus_type": "modbus","function_type": "write_coil"},{"actuator_group": "C","actuator_id": 3,"address": 524,"bus_type": "modbus","function_type": "write_register","profile_id": 2},{"actuator_group": "F","actuator_id": 4,"address": 516,"bus_type": "modbus","function_type": "write_coil"},{"actuator_group": "F","actuator_id": 5,"address": 546,"bus_type": "modbus","function_type": "write_register","profile_id": 2}],"site_id": "site-main"},
+    {"controller_key": "ctrl_wago_4","controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf","enabled": true,"local_controller_id": 4,"node_id": "fn-01","rows": [],"site_id": "site-main"}
+  ],
+
+  "control_method_templates": [
+    {"parameters": ["v0","v1","t_ramp"],"template_description": "Lineare Rampe v0→v1 über t_ramp","template_id": 1,"template_name": "ramp","type": "ramp"},
+    {"parameters": ["low","high","period_s","duty","duration_s"],"template_description": "Rechteck: low/high, Periode, Tastgrad, optionale Dauer","template_id": 2,"template_name": "square","type": "square"},
+    {"parameters": ["amp","offset","period_s","phase_deg","duration_s"],"template_description": "Sinus: Amplitude, Offset, Periode, Phase, optionale Dauer","template_id": 3,"template_name": "sine","type": "sine"},
+    {"expr_id": "poly2","parameters": ["A","B","t0","duration_s"],"template_description": "Quadratisch: A*(t - t0)^2 + B über eine Dauer","template_id": 4,"template_name": "poly2","type": "expr"},
+    {"parameters": ["amp","duration_s"],"template_description": "Dirac-ähnlicher Impuls als kurze Rechtecknadel","template_id": 5,"template_name": "impulse","type": "impulse"},
+    {"expr_id": "inv_sin","parameters": ["A","period_s","t0","duration_s","eps","offset"],"template_description": "(A/(t - t0 + eps)) * sin(2π/period_s * (t - t0)) + offset","template_id": 6,"template_name": "inv_sin","type": "expr"},
+    {"expr_id": "log_n","parameters": ["A","k","B","t0","duration_s"],"template_description": "A * log(k*(t - t0) + 1) + B über eine Dauer","template_id": 7,"template_name": "log_n","type": "expr"},
+    {"expr_id": "exp","parameters": ["A","k","sign","B","t0","duration_s"],"template_description": "A * exp(sign*k*(t - t0)) + B über eine Dauer (sign ∈ {+1,-1})","template_id": 8,"template_name": "exp","type": "expr"}
+  ],
+
+  "control_methods": [
+    {"args": {"t_ramp": 600,"v0": 20.0,"v1": 80.0},"method_id": 1,"template_id": 1},
+    {"args": {"duration_s": 1800,"duty": 0.5,"high": 120.0,"low": 80.0,"period_s": 600},"method_id": 2,"template_id": 2},
+    {"args": {"amp": 10.0,"duration_s": 900,"offset": 100.0,"period_s": 300,"phase_deg": 0},"method_id": 3,"template_id": 3},
+    {"args": {"amp": 50.0,"duration_s": 0.25},"method_id": 4,"template_id": 5},
+    {"args": {"A": 0.01,"B": 0.0,"duration_s": 600,"t0": 0.0},"method_id": 5,"template_id": 4},
+    {"args": {"A": 50.0,"duration_s": 600,"eps": 0.01,"offset": 0.0,"period_s": 120.0,"t0": 0.0},"method_id": 6,"template_id": 6},
+    {"args": {"A": 10.0,"B": 0.0,"duration_s": 600,"k": 0.05,"t0": 0.0},"method_id": 7,"template_id": 7},
+    {"args": {"A": 1.0,"B": 0.0,"duration_s": 900,"k": 0.02,"sign": 1,"t0": 0.0},"method_id": 8,"template_id": 8},
+    {"args": {"A": 80.0,"B": 0.0,"duration_s": 900,"k": 0.03,"sign": 1,"t0": 0.0},"method_id": 9,"template_id": 8}
+  ],
+  "controllers": [
+    {"bus_type": "modbus","controller_id": 1,"controller_key": "ctrl_wago_1","controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335","device_name": "wago_1","host": "192.168.0.51","port": 502,"tags": ["tag","line1"],"unit": "0x1"},
+    {"bus_type": "modbus","controller_id": 2,"controller_key": "ctrl_wago_2","controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","device_name": "wago_2","host": "192.168.0.33","port": 502,"tags": ["tag","io"],"unit": "0x1"},
+    {"bus_type": "modbus","controller_id": 4,"controller_key": "ctrl_wago_4","controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf","device_name": "wago_4","host": "192.168.0.54","port": 502,"tags": ["tag","n/a"],"unit": "0x1"}
+  ],
+  "filters": [
+    {"chain": [{"type": "median","window": 5},{"type": "moving_average","window": 5},{"alpha": 0.2,"type": "lowpass"},{"type": "scaler_sensor_profile"}],"filter_id": 1,"sensor_refs": [{"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","sensor_id": 1}]}
+  ],
+  "local_node": [
+    {"active_controller_routes": [{"controller_key": "ctrl_wago_1","controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335","local_controller_id": 1},{"controller_key": "ctrl_wago_2","controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","local_controller_id": 2},{"controller_key": "ctrl_wago_4","controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf","local_controller_id": 4}],"active_controller_uuids": ["cded47f3-4dc5-5439-9aa6-73f0fff5e335","62671112-766c-59ed-b0ff-30a49d48f747","82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf"],"node_id": "fn-01","site_id": "site-main"}
+  ],
+  "meta": [
+    {"description": "V5-Norm: V4-Controller-UUID-I/O-Modell plus additive Multi-Worker/Site-Routingebene. site_id, node_id und local_controller_id sind Routing-/Deployment-Felder. Die harte I/O-Identitaet bleibt controller_uuid + lokale sensor_id/actuator_id. Derselbe local_controller_id-Wert darf pro node_id neu bei 1 beginnen.","node_id": "fn-01","schema": "device_state_norm","scope": "node_local","version": 5}
+  ],
+  "modbus_functions": [
+    {"modbus_function_id": 1,"modbus_function_type": "write_coil","module_type": "relay"},
+    {"modbus_function_id": 2,"modbus_function_type": "write_coil","module_type": "DA"},
+    {"modbus_function_id": 3,"modbus_function_type": "read_coil","module_type": "DI"},
+    {"modbus_function_id": 4,"modbus_function_type": "write_register","module_type": "AO"},
+    {"modbus_function_id": 5,"modbus_function_type": "read_holding_registers","module_type": "AI"}
+  ],
+  "nodes": [
+    {"description": "Primaerer Worker mit lokalen Controller-Threads","enabled": true,"node_id": "fn-01","node_role": "worker","site_id": "site-main"}
+  ],
+  "parameter_generic_templates": [
+    {"description": "Heizen (generic)","schema_id": 1,"state_type": "heating"},
+    {"description": "Druckregelung","schema_id": 2,"state_type": "pressure"},
+    {"description": "Kühlen (Solltemperatur oder Leistung)","schema_id": 3,"state_type": "cooling"},
+    {"description": "Durchflussregelung","schema_id": 4,"state_type": "flow"},
+    {"description": "Ventil (Durchfluss/Öffnung)","schema_id": 5,"state_type": "valve"},
+    {"description": "Rühren (Drehzahl)","schema_id": 6,"state_type": "stirring"},
+    {"description": "Einlauf/Feed (Temperatur und/oder Durchfluss)","schema_id": 7,"state_type": "inflow"},
+    {"description": "Pumpenregelung (Druck)","schema_id": 8,"state_type": "pump"},
+    {"description": "Reaktion (optional: Temp, Rühren, Dauer, Timer)","schema_id": 9,"state_type": "reaction"},
+    {"description": "Empfang/Annahme (keine Parameter)","schema_id": 10,"state_type": "receiving"}
+  ],
+  "pid_configs": [
+    {"pid_config_id": 1,"pid_parameters": {"kd": 0.0,"ki": 0.001,"kp": 0.01}},
+    {"pid_config_id": 2,"pid_parameters": {"kd": 0.15,"ki": 0.3,"kp": 0.6}},
+    {"pid_config_id": 3,"pid_parameters": {"kd": 0.045,"ki": 0.2,"kp": 1.2}}
+  ],
+  "process_modes": [
+    {"mode": "manual","mode_id": 1},
+    {"mode": "automatic","mode_id": 2},
+    {"mode": "AI","mode_id": 3}
+  ],
+
+
+  "process_states": [
+    {"control_strategy": {"anti_windup": true,"dt_max_s": 0.5,"error_scale": 1.0,"out_max": 10.0,"out_min": 0.0,"pid_config_id": 1,"sample_time": 0.1,"type": "PID"},"io_refs": {"actuators": [{"actuator_id": 3,"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747"}],"sensors": [{"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","sensor_id": 1}]},"mapping_id": 100,"mode_id": 2,"p_id": 1,"parameters": {"target_temp_c": 554.0},"setpoint_source": null,"state_id": 1,"value_id": 1},
+    {"control_strategy": {"anti_windup": true,"dt_max_s": 0.5,"error_scale": 1.0,"out_max": 10.0,"out_min": 0.0,"pid_config_id": 2,"sample_time": 0.1,"type": "PID"},"io_refs": {"actuators": [{"actuator_id": 5,"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747"}],"sensors": [{"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","sensor_id": 5}]},"mapping_id": 100,"mode_id": 1,"p_id": 1,"parameters": {"target_temp_c": 200.0},"setpoint_source": null,"state_id": 21,"value_id": 1},
+    {"control_strategy": null,"io_refs": {"actuators": [{"actuator_id": 2,"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747"}],"sensors": [{"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","sensor_id": 2}]},"mapping_id": 200,"mode_id": 1,"p_id": 1,"parameters": {"hysteresis_bar": 0.15,"target_pressure_bar": 12.0},"setpoint_source": null,"state_id": 11,"value_id": 1},
+    {"control_strategy": null,"io_refs": {"actuators": [{"actuator_id": 4,"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747"}],"sensors": [{"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","sensor_id": 6}]},"mapping_id": 200,"mode_id": 1,"p_id": 1,"parameters": {"hysteresis_bar": 0.03,"target_pressure_bar": 12.0},"setpoint_source": null,"state_id": 20,"value_id": 1},
+    {"control_strategy": null,"io_refs": {"actuators": [{"actuator_id": 1,"controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335"}],"sensors": []},"mapping_id": 220,"mode_id": 1,"p_id": 1,"parameters": {"power": 1},"setpoint_source": null,"state_id": 9,"value_id": 2},
+    {"control_strategy": null,"io_refs": {"actuators": [{"actuator_id": 2,"controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335"}],"sensors": []},"mapping_id": 240,"mode_id": 2,"p_id": 1,"parameters": {"flow_rate": 4.0},"setpoint_source": null,"state_id": 10,"value_id": 1},
+    {"control_strategy": null,"io_refs": {"actuators": [{"actuator_id": 1,"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747"}],"sensors": [{"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","sensor_id": 1}]},"mapping_id": 260,"mode_id": 1,"p_id": 1,"parameters": {"target_temp_c": 570.0},"setpoint_source": null,"state_id": 13,"value_id": 2},
+    {"control_strategy": null,"io_refs": {"actuators": [],"sensors": [{"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","sensor_id": 2}]},"mapping_id": 280,"mode_id": 1,"p_id": 1,"parameters": {},"setpoint_source": null,"state_id": 5,"value_id": 2}
+  ],
+  "process_values": [
+    {"state_value": "activated","value_id": 1},
+    {"state_value": "deactivated","value_id": 2},
+    {"state_value": "error","value_id": 3},
+    {"state_value": "maintenance","value_id": 4}
+  ],
+  "processes": [
+    {"p_id": 1,"process_location": "Main Reactor","process_name": "ketonic_decarboxylation"}
+  ],
+  "rule_engine": [
+    {"debug": {"control": true,"log": ["transitions","saturation","clamps"],"pid": true,"pid_interval_s": 1.0,"pid_saturation_interval_s": 10.0,"pid_state_ids": [1,2]},"defaults": {"eval": "on_event","exec": "parallel","priority": 100},"enabled": true,"engine_id": 1,"required_mode_id": 2,"runtime": {"coordinator_min_priority": 1000,"cross_scope_exec": "coordinator","cross_worker_exec": "site_coordinator_optional","identity_model": "controller_uuid_plus_local_io_id","max_signal_age_s": 2.0,"remote_signal_refs": "allowed_by_controller_uuid","routing_model": "site_id_node_id_local_controller_id","snapshot_isolation": true,"threading": "per_controller","tick_ms": 100},"safety": {"max_output_delta_per_step": 2.0,"on_invalid_pid": {"value_id": 2},"on_missing_sensor": {"value_id": 2}},"sp_tolerance": 0.5,"writable_fields": ["value_id","parameters"]}
+  ],
+  "rules": [
+    {"activation_state": "active","deployment_status": "active_node","description": "Heizung State 1","do": [{"state_ids": [1],"value_id": 1}],"else_do": [{"state_ids": [1],"value_id": 2}],"enabled": true,"engine_id": 1,"execution_epoch": 1,"execution_owner": "fn-01","execution_scope": "node:fn-01","group": "process","name": "heat_on_temp_threshold","owner_node_id": "fn-01","priority": 100,"rule_id": 1,"when": [{"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","filter_id": 1,"op": ">=","sensor_id": 1,"src": "sensor","value": 540.0}]},
+    {"activation_state": "active","deployment_status": "active_node","description": "Druckregelung State 11","do": [{"state_ids": [11],"value_id": 1}],"else_do": [{"state_ids": [11],"value_id": 2}],"enabled": true,"engine_id": 1,"execution_epoch": 1,"execution_owner": "fn-01","execution_scope": "node:fn-01","group": "process","name": "pressure_control_on_threshold","owner_node_id": "fn-01","priority": 100,"rule_id": 2,"when": [{"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","op": ">=","sensor_id": 2,"src": "sensor","value": 7.5}]},
+    {"activation_state": "active","deployment_status": "active_node","description": "Sollwert-Anpassung ab 150 Grad","do": [{"parameters": {"target_temp_c": 554.0},"state_ids": [1]}],"enabled": true,"engine_id": 1,"execution_epoch": 1,"execution_owner": "fn-01","execution_scope": "node:fn-01","group": "process","name": "tune_heater_setpoint","owner_node_id": "fn-01","priority": 200,"rule_id": 10,"when": [{"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","op": ">=","sensor_id": 1,"src": "sensor","value": 150.0}]},
+    {"activation_state": "active","deployment_status": "active_node","description": "Meldung bei 98% Solltemperatur","do": [{"notify": "Heating nominal"}],"enabled": true,"engine_id": 1,"execution_epoch": 1,"execution_owner": "fn-01","execution_scope": "node:fn-01","group": "notify","name": "notify_heating_ready","owner_node_id": "fn-01","priority": 10,"rule_id": 11,"when": [{"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","op": ">=","sensor_id": 1,"src": "sensor","value": {"key": "target_temp_c","param_of_state": 1,"scale": 0.98}},{"field": "value_id","op": "==","src": "state","state_id": 1,"value": 1}]}
+  ],
+  "scaling_profiles": [
+    {"eng_max": 1000.0,"eng_min": 0.0,"name": "Temp_Standard_0_1000C","profile_id": 1,"raw_max": 65535,"raw_min": 0,"unit": "C"},
+    {"eng_max": 10.0,"eng_min": 0.0,"name": "Voltage_0_10V","profile_id": 2,"raw_max": 65535,"raw_min": 0,"unit": "V"},
+    {"eng_max": 20.0,"eng_min": 4.0,"name": "Current_4_20mA","profile_id": 3,"raw_max": 65535,"raw_min": 0,"unit": "mA"},
+    {"eng_max": 100.0,"eng_min": 0.0,"name": "Level_Percent_0_100","profile_id": 4,"raw_max": 10000,"raw_min": 0,"unit": "%"}
+  ],
+  "schema_mappings": [
+    {"mapping_id": 100,"schema_id": 1},
+    {"mapping_id": 200,"schema_id": 2},
+    {"mapping_id": 210,"schema_id": 8},
+    {"mapping_id": 220,"schema_id": 3},
+    {"mapping_id": 230,"schema_id": 4},
+    {"mapping_id": 240,"schema_id": 5},
+    {"mapping_id": 250,"schema_id": 6},
+    {"mapping_id": 260,"schema_id": 7},
+    {"mapping_id": 270,"schema_id": 9},
+    {"mapping_id": 280,"schema_id": 10}
+  ],
+  "sensor_types": [
+    {"sensor_type": "temperature","sensor_types_id": 1},
+    {"sensor_type": "pressure","sensor_types_id": 2},
+    {"sensor_type": "flow","sensor_types_id": 3},
+    {"sensor_type": "level","sensor_types_id": 4},
+    {"sensor_type": "light","sensor_types_id": 5},
+    {"sensor_type": "ph","sensor_types_id": 6},
+    {"sensor_type": "humidity","sensor_types_id": 7},
+    {"sensor_type": "gas","sensor_types_id": 8},
+    {"sensor_type": "motion","sensor_types_id": 9},
+    {"sensor_type": "sound","sensor_types_id": 10},
+    {"sensor_type": "vibration","sensor_types_id": 11},
+    {"sensor_type": "proximity","sensor_types_id": 12},
+    {"sensor_type": "infrared","sensor_types_id": 13},
+    {"sensor_type": "ultrasonic","sensor_types_id": 14},
+    {"sensor_type": "magnetic","sensor_types_id": 15},
+    {"sensor_type": "accelerometer","sensor_types_id": 16},
+    {"sensor_type": "gyroscope","sensor_types_id": 17},
+    {"sensor_type": "gps","sensor_types_id": 18},
+    {"sensor_type": "barcode","sensor_types_id": 19},
+    {"sensor_type": "rfid","sensor_types_id": 20},
+    {"sensor_type": "color","sensor_types_id": 21},
+    {"sensor_type": "ultraviolet","sensor_types_id": 22},
+    {"sensor_type": "turbidity","sensor_types_id": 23},
+    {"sensor_type": "ozone","sensor_types_id": 24},
+    {"sensor_type": "carbon_dioxide","sensor_types_id": 25},
+    {"sensor_type": "methane","sensor_types_id": 26},
+    {"sensor_type": "nitrogen_dioxide","sensor_types_id": 27},
+    {"sensor_type": "oxygen","sensor_types_id": 28},
+    {"sensor_type": "water_quality","sensor_types_id": 29},
+    {"sensor_type": "reflux","sensor_types_id": 30}
+  ],
+  "sensors": [
+    {"controller_key": "ctrl_wago_1","controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335","enabled": true,"local_controller_id": 1,"node_id": "fn-01","rows": [],"site_id": "site-main"},
+    {"controller_key": "ctrl_wago_2","controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","enabled": true,"local_controller_id": 2,"node_id": "fn-01","rows": [{"address": 1,"bus_type": "modbus","function_type": "read_holding_registers","profile_id": 1,"sensor_group": "S1","sensor_id": 1},{"address": 2,"bus_type": "modbus","function_type": "read_holding_registers","profile_id": 3,"sensor_group": "S1","sensor_id": 2},{"address": 3,"bus_type": "modbus","function_type": "read_holding_registers","sensor_group": "S2","sensor_id": 3},{"address": 7,"bus_type": "modbus","function_type": "read_holding_registers","profile_id": 1,"sensor_group": "S1","sensor_id": 4},{"address": 13,"bus_type": "modbus","function_type": "read_holding_registers","sensor_group": "S20","sensor_id": 5},{"address": 8,"bus_type": "modbus","function_type": "read_holding_registers","profile_id": 3,"sensor_group": "S21","sensor_id": 6}],"site_id": "site-main"},
+    {"controller_key": "ctrl_wago_4","controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf","enabled": true,"local_controller_id": 4,"node_id": "fn-01","rows": [{"address": 17,"bus_type": "modbus","function_type": "read_holding_registers","profile_id": 4,"sensor_group": "S17","sensor_id": 1}],"site_id": "site-main"}
+  ],
+  "site_controller_map": [
+    {"controller_key": "ctrl_wago_1","controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335","enabled": true,"local_controller_id": 1,"node_id": "fn-01","route_key": "site-main.fn-01.ctrl_1","routing_role": "owner","site_id": "site-main"},
+    {"controller_key": "ctrl_wago_2","controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","enabled": true,"local_controller_id": 2,"node_id": "fn-01","route_key": "site-main.fn-01.ctrl_2","routing_role": "owner","site_id": "site-main"},
+    {"controller_key": "ctrl_wago_4","controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf","enabled": true,"local_controller_id": 4,"node_id": "fn-01","route_key": "site-main.fn-01.ctrl_4","routing_role": "owner","site_id": "site-main"}
+  ],
+  "sites": [
+    {"description": "Primaere Automatisierungs-Site","enabled": true,"site_id": "site-main","site_name": "Main Site"}
+  ],
+  "timers": [
+    {"description": "Heizdauer Timer","duration_s": 4000,"timer_id": 100},
+    {"description": "14x pro Minute","interval_s": 4.29,"timer_id": 101},
+    {"description": "Abkühlphase Timer","duration_s": 600,"timer_id": 102},
+    {"at": "13:00","description": "Tägliche Automatisierung 13 Uhr","timer_id": 103},
+    {"cron": "0 */2 * * *","description": "Alle 2 Stunden","timer_id": 104}
+  ],
+  "virtual_controllers": [
+    {"controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747","device_name": "virtual_modbus_controller","host": "192.168.0.3","port": 5020,"virt_active": true,"virt_controller_id": 1},
+    {"controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf","device_name": "virtual_modbus_controller","host": "192.168.0.121","port": 5020,"virt_active": false,"virt_controller_id": 3}
+  ]
+}

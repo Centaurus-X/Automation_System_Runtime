@@ -1,0 +1,15 @@
+status: OK
+schema_version: 5
+sites: 1
+nodes: 2
+controller_routes: 5
+sensor_groups: 5
+sensor_rows: 10
+actuator_groups: 5
+actuator_rows: 14
+process_states: 17
+filters: 2
+rules: 14
+local_controller_ids_reused_across_nodes: [1]
+identity_model: controller_uuid + local sensor_id/actuator_id
+routing_model: site_id + node_id + local_controller_id

@@ -1,0 +1,2186 @@
+{
+  "meta": [
+    {
+      "schema": "device_state_norm",
+      "version": 5,
+      "description": "V7-Node-Shard (fn-01): ausschliesslich die eigene Node-Sicht (Controller, I/O, Routing, Filter, Rules, Prozesse, States) plus die geteilte, node-freie Typ-/Template-Bibliothek. Keinerlei Cross-Node-Information. Die Site-Ebene ist entfernt: Identitaet ist vollstaendig site-frei ueber controller_uuid + lokale sensor_id/actuator_id; Routing ueber node_id + local_controller_id. Cross-Controller- und Cross-Node-Referenzen erfolgen leichtgewichtig per controller_uuid; Schreib-Ownership eines Controllers hat immer genau ein Node (site_controller_map, routing_role=owner). Autoritative Gesamtsicht haelt nur der Master.",
+      "scope": "node_local",
+      "node_id": "fn-01"
+    }
+  ],
+  "modbus_functions": [
+    {
+      "modbus_function_id": 1,
+      "module_type": "relay",
+      "modbus_function_type": "write_coil"
+    },
+    {
+      "modbus_function_id": 2,
+      "module_type": "DA",
+      "modbus_function_type": "write_coil"
+    },
+    {
+      "modbus_function_id": 3,
+      "module_type": "DI",
+      "modbus_function_type": "read_coil"
+    },
+    {
+      "modbus_function_id": 4,
+      "module_type": "AO",
+      "modbus_function_type": "write_register"
+    },
+    {
+      "modbus_function_id": 5,
+      "module_type": "AI",
+      "modbus_function_type": "read_holding_registers"
+    }
+  ],
+  "scaling_profiles": [
+    {
+      "profile_id": 1,
+      "name": "Temp_Standard_0_1000C",
+      "raw_min": 0,
+      "raw_max": 65535,
+      "eng_min": 0.0,
+      "eng_max": 1000.0,
+      "unit": "C"
+    },
+    {
+      "profile_id": 2,
+      "name": "Voltage_0_10V",
+      "raw_min": 0,
+      "raw_max": 65535,
+      "eng_min": 0.0,
+      "eng_max": 10.0,
+      "unit": "V"
+    },
+    {
+      "profile_id": 3,
+      "name": "Current_4_20mA",
+      "raw_min": 0,
+      "raw_max": 65535,
+      "eng_min": 4.0,
+      "eng_max": 20.0,
+      "unit": "mA"
+    },
+    {
+      "profile_id": 4,
+      "name": "Level_Percent_0_100",
+      "raw_min": 0,
+      "raw_max": 10000,
+      "eng_min": 0.0,
+      "eng_max": 100.0,
+      "unit": "%"
+    }
+  ],
+  "sensor_types": [
+    {
+      "sensor_types_id": 1,
+      "sensor_type": "temperature"
+    },
+    {
+      "sensor_types_id": 2,
+      "sensor_type": "pressure"
+    },
+    {
+      "sensor_types_id": 3,
+      "sensor_type": "flow"
+    },
+    {
+      "sensor_types_id": 4,
+      "sensor_type": "level"
+    },
+    {
+      "sensor_types_id": 5,
+      "sensor_type": "light"
+    },
+    {
+      "sensor_types_id": 6,
+      "sensor_type": "ph"
+    },
+    {
+      "sensor_types_id": 7,
+      "sensor_type": "humidity"
+    },
+    {
+      "sensor_types_id": 8,
+      "sensor_type": "gas"
+    },
+    {
+      "sensor_types_id": 9,
+      "sensor_type": "motion"
+    },
+    {
+      "sensor_types_id": 10,
+      "sensor_type": "sound"
+    },
+    {
+      "sensor_types_id": 11,
+      "sensor_type": "vibration"
+    },
+    {
+      "sensor_types_id": 12,
+      "sensor_type": "proximity"
+    },
+    {
+      "sensor_types_id": 13,
+      "sensor_type": "infrared"
+    },
+    {
+      "sensor_types_id": 14,
+      "sensor_type": "ultrasonic"
+    },
+    {
+      "sensor_types_id": 15,
+      "sensor_type": "magnetic"
+    },
+    {
+      "sensor_types_id": 16,
+      "sensor_type": "accelerometer"
+    },
+    {
+      "sensor_types_id": 17,
+      "sensor_type": "gyroscope"
+    },
+    {
+      "sensor_types_id": 18,
+      "sensor_type": "gps"
+    },
+    {
+      "sensor_types_id": 19,
+      "sensor_type": "barcode"
+    },
+    {
+      "sensor_types_id": 20,
+      "sensor_type": "rfid"
+    },
+    {
+      "sensor_types_id": 21,
+      "sensor_type": "color"
+    },
+    {
+      "sensor_types_id": 22,
+      "sensor_type": "ultraviolet"
+    },
+    {
+      "sensor_types_id": 23,
+      "sensor_type": "turbidity"
+    },
+    {
+      "sensor_types_id": 24,
+      "sensor_type": "ozone"
+    },
+    {
+      "sensor_types_id": 25,
+      "sensor_type": "carbon_dioxide"
+    },
+    {
+      "sensor_types_id": 26,
+      "sensor_type": "methane"
+    },
+    {
+      "sensor_types_id": 27,
+      "sensor_type": "nitrogen_dioxide"
+    },
+    {
+      "sensor_types_id": 28,
+      "sensor_type": "oxygen"
+    },
+    {
+      "sensor_types_id": 29,
+      "sensor_type": "water_quality"
+    },
+    {
+      "sensor_types_id": 30,
+      "sensor_type": "reflux"
+    }
+  ],
+  "actuator_types": [
+    {
+      "actuator_types_id": 1,
+      "actuator_type": "valve"
+    },
+    {
+      "actuator_types_id": 2,
+      "actuator_type": "boiling_plate"
+    },
+    {
+      "actuator_types_id": 3,
+      "actuator_type": "heating_coil"
+    },
+    {
+      "actuator_types_id": 4,
+      "actuator_type": "cooling_pump"
+    },
+    {
+      "actuator_types_id": 5,
+      "actuator_type": "peristaltic_pump"
+    },
+    {
+      "actuator_types_id": 6,
+      "actuator_type": "vacuum_pump"
+    },
+    {
+      "actuator_types_id": 7,
+      "actuator_type": "water_pump"
+    },
+    {
+      "actuator_types_id": 8,
+      "actuator_type": "solenoid_valve"
+    },
+    {
+      "actuator_types_id": 9,
+      "actuator_type": "reflux_valve"
+    },
+    {
+      "actuator_types_id": 10,
+      "actuator_type": "stirrer_motor"
+    },
+    {
+      "actuator_types_id": 11,
+      "actuator_type": "agitator"
+    },
+    {
+      "actuator_types_id": 12,
+      "actuator_type": "mixing_motor"
+    },
+    {
+      "actuator_types_id": 13,
+      "actuator_type": "filtration_pump"
+    },
+    {
+      "actuator_types_id": 14,
+      "actuator_type": "drying_heater"
+    },
+    {
+      "actuator_types_id": 15,
+      "actuator_type": "distillation_column"
+    },
+    {
+      "actuator_types_id": 16,
+      "actuator_type": "evaporation_unit"
+    },
+    {
+      "actuator_types_id": 17,
+      "actuator_type": "condensation_system"
+    }
+  ],
+  "parameter_generic_templates": [
+    {
+      "schema_id": 1,
+      "state_type": "heating",
+      "description": "Heizen (generic)"
+    },
+    {
+      "schema_id": 2,
+      "state_type": "pressure",
+      "description": "Druckregelung"
+    },
+    {
+      "schema_id": 3,
+      "state_type": "cooling",
+      "description": "Kühlen (Solltemperatur oder Leistung)"
+    },
+    {
+      "schema_id": 4,
+      "state_type": "flow",
+      "description": "Durchflussregelung"
+    },
+    {
+      "schema_id": 5,
+      "state_type": "valve",
+      "description": "Ventil (Durchfluss/Öffnung)"
+    },
+    {
+      "schema_id": 6,
+      "state_type": "stirring",
+      "description": "Rühren (Drehzahl)"
+    },
+    {
+      "schema_id": 7,
+      "state_type": "inflow",
+      "description": "Einlauf/Feed (Temperatur und/oder Durchfluss)"
+    },
+    {
+      "schema_id": 8,
+      "state_type": "pump",
+      "description": "Pumpenregelung (Druck)"
+    },
+    {
+      "schema_id": 9,
+      "state_type": "reaction",
+      "description": "Reaktion (optional: Temp, Rühren, Dauer, Timer)"
+    },
+    {
+      "schema_id": 10,
+      "state_type": "receiving",
+      "description": "Empfang/Annahme (keine Parameter)"
+    }
+  ],
+  "schema_mappings": [
+    {
+      "mapping_id": 100,
+      "schema_id": 1
+    },
+    {
+      "mapping_id": 200,
+      "schema_id": 2
+    },
+    {
+      "mapping_id": 210,
+      "schema_id": 8
+    },
+    {
+      "mapping_id": 220,
+      "schema_id": 3
+    },
+    {
+      "mapping_id": 230,
+      "schema_id": 4
+    },
+    {
+      "mapping_id": 240,
+      "schema_id": 5
+    },
+    {
+      "mapping_id": 250,
+      "schema_id": 6
+    },
+    {
+      "mapping_id": 260,
+      "schema_id": 7
+    },
+    {
+      "mapping_id": 270,
+      "schema_id": 9
+    },
+    {
+      "mapping_id": 280,
+      "schema_id": 10
+    }
+  ],
+  "process_values": [
+    {
+      "value_id": 1,
+      "state_value": "activated"
+    },
+    {
+      "value_id": 2,
+      "state_value": "deactivated"
+    },
+    {
+      "value_id": 3,
+      "state_value": "error"
+    },
+    {
+      "value_id": 4,
+      "state_value": "maintenance"
+    }
+  ],
+  "process_modes": [
+    {
+      "mode_id": 1,
+      "mode": "manual"
+    },
+    {
+      "mode_id": 2,
+      "mode": "automatic"
+    },
+    {
+      "mode_id": 3,
+      "mode": "AI"
+    }
+  ],
+  "pid_configs": [
+    {
+      "pid_config_id": 1,
+      "pid_parameters": {
+        "kp": 0.01,
+        "ki": 0.001,
+        "kd": 0.0
+      }
+    },
+    {
+      "pid_config_id": 2,
+      "pid_parameters": {
+        "kp": 0.6,
+        "ki": 0.3,
+        "kd": 0.15
+      }
+    },
+    {
+      "pid_config_id": 3,
+      "pid_parameters": {
+        "kp": 1.2,
+        "ki": 0.2,
+        "kd": 0.045
+      }
+    }
+  ],
+  "control_method_templates": [
+    {
+      "template_id": 1,
+      "template_name": "ramp",
+      "template_description": "Lineare Rampe v0→v1 über t_ramp",
+      "type": "ramp",
+      "parameters": [
+        "v0",
+        "v1",
+        "t_ramp"
+      ]
+    },
+    {
+      "template_id": 2,
+      "template_name": "square",
+      "template_description": "Rechteck: low/high, Periode, Tastgrad, optionale Dauer",
+      "type": "square",
+      "parameters": [
+        "low",
+        "high",
+        "period_s",
+        "duty",
+        "duration_s"
+      ]
+    },
+    {
+      "template_id": 3,
+      "template_name": "sine",
+      "template_description": "Sinus: Amplitude, Offset, Periode, Phase, optionale Dauer",
+      "type": "sine",
+      "parameters": [
+        "amp",
+        "offset",
+        "period_s",
+        "phase_deg",
+        "duration_s"
+      ]
+    },
+    {
+      "template_id": 4,
+      "template_name": "poly2",
+      "template_description": "Quadratisch: A*(t - t0)^2 + B über eine Dauer",
+      "type": "expr",
+      "expr_id": "poly2",
+      "parameters": [
+        "A",
+        "B",
+        "t0",
+        "duration_s"
+      ]
+    },
+    {
+      "template_id": 5,
+      "template_name": "impulse",
+      "template_description": "Dirac-ähnlicher Impuls als kurze Rechtecknadel",
+      "type": "impulse",
+      "parameters": [
+        "amp",
+        "duration_s"
+      ]
+    },
+    {
+      "template_id": 6,
+      "template_name": "inv_sin",
+      "template_description": "(A/(t - t0 + eps)) * sin(2π/period_s * (t - t0)) + offset",
+      "type": "expr",
+      "expr_id": "inv_sin",
+      "parameters": [
+        "A",
+        "period_s",
+        "t0",
+        "duration_s",
+        "eps",
+        "offset"
+      ]
+    },
+    {
+      "template_id": 7,
+      "template_name": "log_n",
+      "template_description": "A * log(k*(t - t0) + 1) + B über eine Dauer",
+      "type": "expr",
+      "expr_id": "log_n",
+      "parameters": [
+        "A",
+        "k",
+        "B",
+        "t0",
+        "duration_s"
+      ]
+    },
+    {
+      "template_id": 8,
+      "template_name": "exp",
+      "template_description": "A * exp(sign*k*(t - t0)) + B über eine Dauer (sign ∈ {+1,-1})",
+      "type": "expr",
+      "expr_id": "exp",
+      "parameters": [
+        "A",
+        "k",
+        "sign",
+        "B",
+        "t0",
+        "duration_s"
+      ]
+    }
+  ],
+  "control_methods": [
+    {
+      "method_id": 1,
+      "template_id": 1,
+      "args": {
+        "v0": 20.0,
+        "v1": 80.0,
+        "t_ramp": 600
+      }
+    },
+    {
+      "method_id": 2,
+      "template_id": 2,
+      "args": {
+        "low": 80.0,
+        "high": 120.0,
+        "period_s": 600,
+        "duty": 0.5,
+        "duration_s": 1800
+      }
+    },
+    {
+      "method_id": 3,
+      "template_id": 3,
+      "args": {
+        "amp": 10.0,
+        "offset": 100.0,
+        "period_s": 300,
+        "phase_deg": 0,
+        "duration_s": 900
+      }
+    },
+    {
+      "method_id": 4,
+      "template_id": 5,
+      "args": {
+        "amp": 50.0,
+        "duration_s": 0.25
+      }
+    },
+    {
+      "method_id": 5,
+      "template_id": 4,
+      "args": {
+        "A": 0.01,
+        "B": 0.0,
+        "t0": 0.0,
+        "duration_s": 600
+      }
+    },
+    {
+      "method_id": 6,
+      "template_id": 6,
+      "args": {
+        "A": 50.0,
+        "period_s": 120.0,
+        "t0": 0.0,
+        "duration_s": 600,
+        "eps": 0.01,
+        "offset": 0.0
+      }
+    },
+    {
+      "method_id": 7,
+      "template_id": 7,
+      "args": {
+        "A": 10.0,
+        "k": 0.05,
+        "B": 0.0,
+        "t0": 0.0,
+        "duration_s": 600
+      }
+    },
+    {
+      "method_id": 8,
+      "template_id": 8,
+      "args": {
+        "A": 1.0,
+        "k": 0.02,
+        "sign": 1,
+        "B": 0.0,
+        "t0": 0.0,
+        "duration_s": 900
+      }
+    },
+    {
+      "method_id": 9,
+      "template_id": 8,
+      "args": {
+        "A": 80.0,
+        "k": 0.03,
+        "sign": 1,
+        "B": 0.0,
+        "t0": 0.0,
+        "duration_s": 900
+      }
+    }
+  ],
+  "rule_engine": [
+    {
+      "engine_id": 1,
+      "enabled": true,
+      "required_mode_id": 2,
+      "writable_fields": [
+        "value_id",
+        "parameters"
+      ],
+      "sp_tolerance": 0.5,
+      "safety": {
+        "on_missing_sensor": {
+          "value_id": 2
+        },
+        "on_invalid_pid": {
+          "value_id": 2
+        },
+        "max_output_delta_per_step": 2.0
+      },
+      "defaults": {
+        "eval": "on_event",
+        "exec": "parallel",
+        "priority": 100
+      },
+      "runtime": {
+        "threading": "per_controller",
+        "tick_ms": 100,
+        "snapshot_isolation": true,
+        "cross_scope_exec": "coordinator",
+        "coordinator_min_priority": 1000,
+        "max_signal_age_s": 2.0,
+        "identity_model": "controller_uuid_plus_local_io_id",
+        "routing_model": "node_id_local_controller_id",
+        "cross_worker_exec": "site_coordinator_optional",
+        "remote_signal_refs": "allowed_by_controller_uuid"
+      },
+      "debug": {
+        "control": true,
+        "pid": true,
+        "pid_state_ids": [
+          1,
+          2
+        ],
+        "pid_interval_s": 1.0,
+        "pid_saturation_interval_s": 10.0,
+        "log": [
+          "transitions",
+          "saturation",
+          "clamps"
+        ]
+      }
+    }
+  ],
+  "timers": [
+    {
+      "timer_id": 100,
+      "duration_s": 4000,
+      "description": "Heizdauer Timer"
+    },
+    {
+      "timer_id": 101,
+      "interval_s": 4.29,
+      "description": "14x pro Minute"
+    },
+    {
+      "timer_id": 102,
+      "duration_s": 600,
+      "description": "Abkühlphase Timer"
+    },
+    {
+      "timer_id": 103,
+      "at": "13:00",
+      "description": "Tägliche Automatisierung 13 Uhr"
+    },
+    {
+      "timer_id": 104,
+      "cron": "0 */2 * * *",
+      "description": "Alle 2 Stunden"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "fn-01",
+      "node_role": "worker",
+      "enabled": true,
+      "description": "Primaerer Worker mit lokalen Controller-Threads"
+    }
+  ],
+  "site_controller_map": [
+    {
+      "node_id": "fn-01",
+      "local_controller_id": 1,
+      "controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335",
+      "controller_key": "ctrl_wago_1",
+      "enabled": true,
+      "route_key": "fn-01.ctrl_1",
+      "routing_role": "owner"
+    },
+    {
+      "node_id": "fn-01",
+      "local_controller_id": 2,
+      "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+      "controller_key": "ctrl_wago_2",
+      "enabled": true,
+      "route_key": "fn-01.ctrl_2",
+      "routing_role": "owner"
+    },
+    {
+      "node_id": "fn-01",
+      "local_controller_id": 3,
+      "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+      "controller_key": "ctrl_wago_3",
+      "enabled": true,
+      "route_key": "fn-01.ctrl_3",
+      "routing_role": "owner"
+    },
+    {
+      "node_id": "fn-01",
+      "local_controller_id": 4,
+      "controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf",
+      "controller_key": "ctrl_wago_4",
+      "enabled": true,
+      "route_key": "fn-01.ctrl_4",
+      "routing_role": "owner"
+    }
+  ],
+  "local_node": [
+    {
+      "node_id": "fn-01",
+      "active_controller_uuids": [
+        "cded47f3-4dc5-5439-9aa6-73f0fff5e335",
+        "62671112-766c-59ed-b0ff-30a49d48f747",
+        "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+        "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf"
+      ],
+      "active_controller_routes": [
+        {
+          "local_controller_id": 1,
+          "controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335",
+          "controller_key": "ctrl_wago_1"
+        },
+        {
+          "local_controller_id": 2,
+          "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+          "controller_key": "ctrl_wago_2"
+        },
+        {
+          "local_controller_id": 3,
+          "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+          "controller_key": "ctrl_wago_3"
+        },
+        {
+          "local_controller_id": 4,
+          "controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf",
+          "controller_key": "ctrl_wago_4"
+        }
+      ]
+    }
+  ],
+  "controllers": [
+    {
+      "controller_id": 1,
+      "controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335",
+      "controller_key": "ctrl_wago_1",
+      "device_name": "wago_1",
+      "bus_type": "modbus",
+      "host": "192.168.0.51",
+      "port": 502,
+      "unit": "0x1",
+      "tags": [
+        "tag",
+        "line1"
+      ]
+    },
+    {
+      "controller_id": 2,
+      "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+      "controller_key": "ctrl_wago_2",
+      "device_name": "wago_2",
+      "bus_type": "modbus",
+      "host": "192.168.0.33",
+      "port": 502,
+      "unit": "0x1",
+      "tags": [
+        "tag",
+        "io"
+      ]
+    },
+    {
+      "controller_id": 3,
+      "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+      "controller_key": "ctrl_wago_3",
+      "device_name": "wago_3",
+      "bus_type": "modbus",
+      "host": "192.168.0.53",
+      "port": 502,
+      "unit": "0x1",
+      "tags": [
+        "tag"
+      ]
+    },
+    {
+      "controller_id": 4,
+      "controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf",
+      "controller_key": "ctrl_wago_4",
+      "device_name": "wago_4",
+      "bus_type": "modbus",
+      "host": "192.168.0.54",
+      "port": 502,
+      "unit": "0x1",
+      "tags": [
+        "tag",
+        "n/a"
+      ]
+    }
+  ],
+  "virtual_controllers": [
+    {
+      "virt_controller_id": 1,
+      "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+      "virt_active": true,
+      "device_name": "virtual_modbus_controller",
+      "host": "192.168.0.3",
+      "port": 5020
+    },
+    {
+      "virt_controller_id": 2,
+      "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+      "virt_active": false,
+      "device_name": "virtual_modbus_controller",
+      "host": "192.168.0.4",
+      "port": 5020
+    },
+    {
+      "virt_controller_id": 3,
+      "controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf",
+      "virt_active": false,
+      "device_name": "virtual_modbus_controller",
+      "host": "192.168.0.121",
+      "port": 5020
+    }
+  ],
+  "sensors": [
+    {
+      "node_id": "fn-01",
+      "local_controller_id": 1,
+      "controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335",
+      "controller_key": "ctrl_wago_1",
+      "enabled": true,
+      "rows": []
+    },
+    {
+      "node_id": "fn-01",
+      "local_controller_id": 2,
+      "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+      "controller_key": "ctrl_wago_2",
+      "enabled": true,
+      "rows": [
+        {
+          "sensor_id": 1,
+          "bus_type": "modbus",
+          "function_type": "read_holding_registers",
+          "address": 1,
+          "sensor_group": "S1",
+          "profile_id": 1
+        },
+        {
+          "sensor_id": 2,
+          "bus_type": "modbus",
+          "function_type": "read_holding_registers",
+          "address": 2,
+          "sensor_group": "S1",
+          "profile_id": 3
+        },
+        {
+          "sensor_id": 3,
+          "bus_type": "modbus",
+          "function_type": "read_holding_registers",
+          "address": 3,
+          "sensor_group": "S2"
+        },
+        {
+          "sensor_id": 4,
+          "bus_type": "modbus",
+          "function_type": "read_holding_registers",
+          "address": 7,
+          "sensor_group": "S1",
+          "profile_id": 1
+        },
+        {
+          "sensor_id": 5,
+          "bus_type": "modbus",
+          "function_type": "read_holding_registers",
+          "address": 13,
+          "sensor_group": "S20"
+        },
+        {
+          "sensor_id": 6,
+          "bus_type": "modbus",
+          "function_type": "read_holding_registers",
+          "address": 8,
+          "sensor_group": "S21",
+          "profile_id": 3
+        }
+      ]
+    },
+    {
+      "node_id": "fn-01",
+      "local_controller_id": 3,
+      "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+      "controller_key": "ctrl_wago_3",
+      "enabled": true,
+      "rows": [
+        {
+          "sensor_id": 1,
+          "bus_type": "modbus",
+          "function_type": "read_holding_registers",
+          "address": 4,
+          "sensor_group": "S4"
+        },
+        {
+          "sensor_id": 2,
+          "bus_type": "modbus",
+          "function_type": "read_coil",
+          "address": 5,
+          "sensor_group": "S5"
+        },
+        {
+          "sensor_id": 3,
+          "bus_type": "modbus",
+          "function_type": "read_holding_registers",
+          "address": 12,
+          "sensor_group": "S12",
+          "profile_id": 1
+        }
+      ]
+    },
+    {
+      "node_id": "fn-01",
+      "local_controller_id": 4,
+      "controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf",
+      "controller_key": "ctrl_wago_4",
+      "enabled": true,
+      "rows": [
+        {
+          "sensor_id": 1,
+          "bus_type": "modbus",
+          "function_type": "read_holding_registers",
+          "address": 17,
+          "sensor_group": "S17",
+          "profile_id": 4
+        }
+      ]
+    }
+  ],
+  "actuators": [
+    {
+      "node_id": "fn-01",
+      "local_controller_id": 1,
+      "controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335",
+      "controller_key": "ctrl_wago_1",
+      "enabled": true,
+      "rows": [
+        {
+          "actuator_id": 1,
+          "bus_type": "modbus",
+          "function_type": "write_coil",
+          "address": 512,
+          "actuator_group": "A"
+        },
+        {
+          "actuator_id": 2,
+          "bus_type": "modbus",
+          "function_type": "write_coil",
+          "address": 513,
+          "actuator_group": "A"
+        }
+      ]
+    },
+    {
+      "node_id": "fn-01",
+      "local_controller_id": 2,
+      "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+      "controller_key": "ctrl_wago_2",
+      "enabled": true,
+      "rows": [
+        {
+          "actuator_id": 1,
+          "bus_type": "modbus",
+          "function_type": "write_coil",
+          "address": 514,
+          "actuator_group": "B"
+        },
+        {
+          "actuator_id": 2,
+          "bus_type": "modbus",
+          "function_type": "write_coil",
+          "address": 515,
+          "actuator_group": "B"
+        },
+        {
+          "actuator_id": 3,
+          "bus_type": "modbus",
+          "function_type": "write_register",
+          "address": 524,
+          "actuator_group": "C",
+          "profile_id": 2
+        },
+        {
+          "actuator_id": 4,
+          "bus_type": "modbus",
+          "function_type": "write_coil",
+          "address": 516,
+          "actuator_group": "F"
+        },
+        {
+          "actuator_id": 5,
+          "bus_type": "modbus",
+          "function_type": "write_register",
+          "address": 546,
+          "actuator_group": "F",
+          "profile_id": 2
+        }
+      ]
+    },
+    {
+      "node_id": "fn-01",
+      "local_controller_id": 3,
+      "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+      "controller_key": "ctrl_wago_3",
+      "enabled": true,
+      "rows": [
+        {
+          "actuator_id": 1,
+          "bus_type": "modbus",
+          "function_type": "write_register",
+          "address": 526,
+          "actuator_group": "C"
+        },
+        {
+          "actuator_id": 2,
+          "bus_type": "modbus",
+          "function_type": "write_register",
+          "address": 527,
+          "actuator_group": "C"
+        },
+        {
+          "actuator_id": 3,
+          "bus_type": "modbus",
+          "function_type": "write_register",
+          "address": 543,
+          "actuator_group": "D"
+        },
+        {
+          "actuator_id": 4,
+          "bus_type": "modbus",
+          "function_type": "write_register",
+          "address": 544,
+          "actuator_group": "D"
+        }
+      ]
+    },
+    {
+      "node_id": "fn-01",
+      "local_controller_id": 4,
+      "controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf",
+      "controller_key": "ctrl_wago_4",
+      "enabled": true,
+      "rows": []
+    }
+  ],
+  "filters": [
+    {
+      "filter_id": 1,
+      "sensor_refs": [
+        {
+          "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+          "sensor_id": 1
+        }
+      ],
+      "chain": [
+        {
+          "type": "median",
+          "window": 5
+        },
+        {
+          "type": "moving_average",
+          "window": 5
+        },
+        {
+          "type": "lowpass",
+          "alpha": 0.2
+        },
+        {
+          "type": "scaler_sensor_profile"
+        }
+      ]
+    },
+    {
+      "filter_id": 2,
+      "sensor_refs": [
+        {
+          "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+          "sensor_id": 1
+        }
+      ],
+      "chain": [
+        {
+          "type": "highpass",
+          "alpha": 0.05
+        },
+        {
+          "type": "sampler",
+          "period_s": 0.2
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "rule_id": 1,
+      "engine_id": 1,
+      "group": "process",
+      "priority": 100,
+      "name": "heat_on_temp_threshold",
+      "enabled": true,
+      "description": "Heizung State 1",
+      "when": [
+        {
+          "src": "state",
+          "state_id": 1,
+          "op": "==",
+          "value": 1,
+          "field": "value_id"
+        },
+        {
+          "src": "sensor",
+          "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+          "sensor_id": 1,
+          "op": ">=",
+          "value": 540.0,
+          "filter_id": 1
+        }
+      ],
+      "do": [
+        {
+          "state_ids": [
+            1
+          ],
+          "value_id": 1
+        }
+      ],
+      "else_do": [
+        {
+          "state_ids": [
+            1
+          ],
+          "value_id": 2
+        }
+      ],
+      "owner_node_id": "fn-01"
+    },
+    {
+      "rule_id": 2,
+      "engine_id": 1,
+      "group": "process",
+      "priority": 100,
+      "name": "pressure_control_on_threshold",
+      "enabled": true,
+      "description": "Druckregelung State 11",
+      "when": [
+        {
+          "src": "state",
+          "state_id": 11,
+          "op": "==",
+          "value": 1,
+          "field": "value_id"
+        },
+        {
+          "src": "sensor",
+          "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+          "sensor_id": 2,
+          "op": ">=",
+          "value": 7.5
+        }
+      ],
+      "do": [
+        {
+          "state_ids": [
+            11
+          ],
+          "value_id": 1
+        }
+      ],
+      "else_do": [
+        {
+          "state_ids": [
+            11
+          ],
+          "value_id": 2
+        }
+      ],
+      "owner_node_id": "fn-01"
+    },
+    {
+      "rule_id": 3,
+      "engine_id": 1,
+      "group": "process",
+      "priority": 100,
+      "name": "cooling_on_temp_high",
+      "enabled": true,
+      "description": "Kuehlung State 14",
+      "when": [
+        {
+          "src": "sensor",
+          "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+          "sensor_id": 3,
+          "op": ">=",
+          "value": 75.0
+        }
+      ],
+      "do": [
+        {
+          "state_ids": [
+            14
+          ],
+          "value_id": 1
+        }
+      ],
+      "else_do": [
+        {
+          "state_ids": [
+            14
+          ],
+          "value_id": 2
+        }
+      ],
+      "owner_node_id": "fn-01"
+    },
+    {
+      "rule_id": 4,
+      "engine_id": 1,
+      "group": "process",
+      "priority": 100,
+      "name": "pump_on_heat_timer",
+      "enabled": true,
+      "description": "Pumpe State 12 nach Heizdauer",
+      "when": [
+        {
+          "src": "timer",
+          "timer_id": 100,
+          "op": "elapsed",
+          "value": true
+        }
+      ],
+      "do": [
+        {
+          "state_ids": [
+            12
+          ],
+          "value_id": 1
+        }
+      ],
+      "else_do": [
+        {
+          "state_ids": [
+            12
+          ],
+          "value_id": 2
+        }
+      ],
+      "owner_node_id": "fn-01"
+    },
+    {
+      "rule_id": 5,
+      "engine_id": 1,
+      "group": "process",
+      "priority": 100,
+      "name": "valve_on_target_temp",
+      "enabled": true,
+      "description": "Ventil State 10 mit Hysterese 100%/98% des Soll",
+      "when": [
+        {
+          "src": "sensor",
+          "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+          "sensor_id": 1,
+          "op": ">=",
+          "value": {
+            "param_of_state": 1,
+            "key": "target_temp_c"
+          }
+        }
+      ],
+      "until": [
+        {
+          "src": "sensor",
+          "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+          "sensor_id": 1,
+          "op": "<",
+          "value": {
+            "param_of_state": 1,
+            "key": "target_temp_c",
+            "scale": 0.98
+          }
+        }
+      ],
+      "do": [
+        {
+          "state_ids": [
+            10
+          ],
+          "value_id": 1
+        }
+      ],
+      "else_do": [
+        {
+          "state_ids": [
+            10
+          ],
+          "value_id": 2
+        }
+      ],
+      "owner_node_id": "fn-01"
+    },
+    {
+      "rule_id": 6,
+      "engine_id": 1,
+      "group": "process",
+      "priority": 100,
+      "name": "pump_hysterese_level",
+      "enabled": true,
+      "description": "Pumpe State 15 mit Fuellstand-Hysterese",
+      "when": [
+        {
+          "src": "sensor",
+          "controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf",
+          "sensor_id": 1,
+          "op": ">=",
+          "value": 25.0
+        }
+      ],
+      "until": [
+        {
+          "src": "sensor",
+          "controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf",
+          "sensor_id": 1,
+          "op": "<=",
+          "value": 15.0
+        }
+      ],
+      "do": [
+        {
+          "state_ids": [
+            15
+          ],
+          "value_id": 1
+        }
+      ],
+      "else_do": [
+        {
+          "state_ids": [
+            15
+          ],
+          "value_id": 2
+        }
+      ],
+      "owner_node_id": "fn-01"
+    },
+    {
+      "rule_id": 7,
+      "engine_id": 1,
+      "group": "process",
+      "priority": 100,
+      "name": "p1_all_on_temp",
+      "enabled": true,
+      "description": "Prozess 1 komplett ab 100 Grad",
+      "when": [
+        {
+          "src": "sensor",
+          "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+          "sensor_id": 1,
+          "op": ">=",
+          "value": 100.0
+        }
+      ],
+      "do": [
+        {
+          "p_ids": [
+            1
+          ],
+          "value_id": 1
+        }
+      ],
+      "else_do": [
+        {
+          "p_ids": [
+            1
+          ],
+          "value_id": 2
+        }
+      ],
+      "owner_node_id": "fn-01"
+    },
+    {
+      "rule_id": 8,
+      "engine_id": 1,
+      "group": "process",
+      "priority": 100,
+      "name": "p1_p3_on_temp",
+      "enabled": true,
+      "description": "Prozesse 1+3 ab 80 Grad",
+      "when": [
+        {
+          "src": "sensor",
+          "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+          "sensor_id": 1,
+          "op": ">=",
+          "value": 80.0
+        }
+      ],
+      "do": [
+        {
+          "p_ids": [
+            1,
+            3
+          ],
+          "value_id": 1
+        }
+      ],
+      "else_do": [
+        {
+          "p_ids": [
+            1,
+            3
+          ],
+          "value_id": 2
+        }
+      ],
+      "owner_node_id": "fn-01"
+    },
+    {
+      "rule_id": 9,
+      "engine_id": 1,
+      "group": "process",
+      "priority": 100,
+      "name": "scheduled_p1_p3_on",
+      "enabled": true,
+      "description": "Taeglicher Start 13 Uhr",
+      "when": [
+        {
+          "src": "timer",
+          "timer_id": 103,
+          "op": "fired",
+          "value": true
+        }
+      ],
+      "do": [
+        {
+          "p_ids": [
+            1,
+            3
+          ],
+          "value_id": 1
+        }
+      ],
+      "else_do": [
+        {
+          "p_ids": [
+            1,
+            3
+          ],
+          "value_id": 2
+        }
+      ],
+      "owner_node_id": "fn-01"
+    },
+    {
+      "rule_id": 10,
+      "engine_id": 1,
+      "group": "process",
+      "priority": 200,
+      "name": "tune_heater_setpoint",
+      "enabled": true,
+      "description": "Sollwert-Anpassung ab 150 Grad",
+      "when": [
+        {
+          "src": "sensor",
+          "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+          "sensor_id": 1,
+          "op": ">=",
+          "value": 150.0
+        }
+      ],
+      "do": [
+        {
+          "state_ids": [
+            1
+          ],
+          "parameters": {
+            "target_temp_c": 554.0
+          }
+        }
+      ],
+      "owner_node_id": "fn-01"
+    },
+    {
+      "rule_id": 11,
+      "engine_id": 1,
+      "group": "notify",
+      "priority": 10,
+      "name": "notify_heating_ready",
+      "enabled": true,
+      "description": "Meldung bei 98% Solltemperatur",
+      "when": [
+        {
+          "src": "sensor",
+          "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+          "sensor_id": 1,
+          "op": ">=",
+          "value": {
+            "param_of_state": 1,
+            "key": "target_temp_c",
+            "scale": 0.98
+          }
+        },
+        {
+          "src": "state",
+          "state_id": 1,
+          "op": "==",
+          "value": 1,
+          "field": "value_id"
+        }
+      ],
+      "do": [
+        {
+          "notify": "Heating nominal"
+        }
+      ],
+      "owner_node_id": "fn-01"
+    },
+    {
+      "rule_id": 13,
+      "engine_id": 1,
+      "group": "safety",
+      "priority": 500,
+      "name": "pump_off_critical_level",
+      "enabled": true,
+      "description": "Prozesse 1+3 aus bei kritischem Fuellstand",
+      "when": [
+        {
+          "src": "sensor",
+          "controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf",
+          "sensor_id": 1,
+          "op": "<",
+          "value": 20.0
+        }
+      ],
+      "do": [
+        {
+          "p_ids": [
+            1,
+            3
+          ],
+          "value_id": 2
+        }
+      ],
+      "owner_node_id": "fn-01"
+    },
+    {
+      "rule_id": 15,
+      "engine_id": 1,
+      "group": "safety",
+      "priority": 1000,
+      "name": "error_on_high_pressure",
+      "enabled": true,
+      "description": "Prozess 1 in Error bei Ueberdruck Sensor 4",
+      "when": [
+        {
+          "src": "sensor",
+          "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+          "sensor_id": 1,
+          "op": ">",
+          "value": 5.0,
+          "cooldown_s": 10
+        }
+      ],
+      "do": [
+        {
+          "p_ids": [
+            1
+          ],
+          "value_id": 3
+        }
+      ],
+      "else_do": [
+        {
+          "p_ids": [
+            1
+          ],
+          "value_id": 2
+        }
+      ],
+      "owner_node_id": "fn-01"
+    },
+    {
+      "rule_id": 17,
+      "engine_id": 1,
+      "group": "safety",
+      "priority": 1000,
+      "name": "emergency_shutdown_pressure",
+      "enabled": true,
+      "latch": "manual",
+      "description": "Notabschaltung bei Sensor 2 >= 9.0",
+      "when": [
+        {
+          "src": "sensor",
+          "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+          "sensor_id": 2,
+          "op": ">=",
+          "value": 9.0
+        }
+      ],
+      "do": [
+        {
+          "state_ids": [
+            2,
+            4,
+            9,
+            10,
+            11,
+            15
+          ],
+          "value_id": 2
+        }
+      ],
+      "owner_node_id": "fn-01"
+    }
+  ],
+  "processes": [
+    {
+      "p_id": 1,
+      "process_name": "ketonic_decarboxylation",
+      "process_location": "Main Reactor",
+      "owner_node_id": "fn-01"
+    },
+    {
+      "p_id": 2,
+      "process_name": "reductive_amination",
+      "process_location": "",
+      "owner_node_id": "fn-01"
+    },
+    {
+      "p_id": 3,
+      "process_name": "ester_hydrolysis",
+      "process_location": "",
+      "owner_node_id": "fn-01"
+    },
+    {
+      "p_id": 4,
+      "process_name": "hydrogenation",
+      "process_location": "",
+      "owner_node_id": "fn-01"
+    },
+    {
+      "p_id": 5,
+      "process_name": "rectification",
+      "process_location": "",
+      "owner_node_id": "fn-01"
+    },
+    {
+      "p_id": 6,
+      "process_name": "reaction_process",
+      "process_location": "",
+      "owner_node_id": "fn-01"
+    }
+  ],
+  "process_states": [
+    {
+      "state_id": 1,
+      "p_id": 1,
+      "value_id": 1,
+      "mode_id": 2,
+      "mapping_id": 100,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+            "actuator_id": 3
+          }
+        ],
+        "sensors": [
+          {
+            "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+            "sensor_id": 1
+          }
+        ]
+      },
+      "parameters": {
+        "target_temp_c": 554.0
+      },
+      "control_strategy": {
+        "type": "PID",
+        "pid_config_id": 1,
+        "anti_windup": true,
+        "out_min": 0.0,
+        "out_max": 10.0,
+        "sample_time": 0.1,
+        "error_scale": 1.0,
+        "dt_max_s": 0.5
+      },
+      "setpoint_source": null
+    },
+    {
+      "state_id": 2,
+      "p_id": 1,
+      "value_id": 1,
+      "mode_id": 2,
+      "mapping_id": 200,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335",
+            "actuator_id": 1
+          }
+        ],
+        "sensors": [
+          {
+            "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+            "sensor_id": 1
+          }
+        ]
+      },
+      "parameters": {
+        "target_pressure_bar": 1.5,
+        "max_pressure": 6.0
+      },
+      "control_strategy": null,
+      "setpoint_source": null
+    },
+    {
+      "state_id": 3,
+      "p_id": 1,
+      "value_id": 1,
+      "mode_id": 1,
+      "mapping_id": 220,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+            "actuator_id": 3
+          }
+        ],
+        "sensors": [
+          {
+            "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+            "sensor_id": 1
+          },
+          {
+            "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+            "sensor_id": 1
+          }
+        ]
+      },
+      "parameters": {
+        "target_temp_c": 20.0,
+        "max_pressure": 6.0
+      },
+      "control_strategy": null,
+      "setpoint_source": null
+    },
+    {
+      "state_id": 4,
+      "p_id": 1,
+      "value_id": 2,
+      "mode_id": 1,
+      "mapping_id": 230,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335",
+            "actuator_id": 2
+          }
+        ],
+        "sensors": [
+          {
+            "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+            "sensor_id": 3
+          }
+        ]
+      },
+      "parameters": {
+        "flow_rate": 1000.0
+      },
+      "control_strategy": null,
+      "setpoint_source": null
+    },
+    {
+      "state_id": 5,
+      "p_id": 1,
+      "value_id": 2,
+      "mode_id": 1,
+      "mapping_id": 280,
+      "io_refs": {
+        "actuators": [],
+        "sensors": [
+          {
+            "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+            "sensor_id": 2
+          }
+        ]
+      },
+      "parameters": {},
+      "control_strategy": null,
+      "setpoint_source": null
+    },
+    {
+      "state_id": 9,
+      "p_id": 1,
+      "value_id": 2,
+      "mode_id": 1,
+      "mapping_id": 220,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335",
+            "actuator_id": 1
+          }
+        ],
+        "sensors": []
+      },
+      "parameters": {
+        "power": 1
+      },
+      "control_strategy": null,
+      "setpoint_source": null
+    },
+    {
+      "state_id": 10,
+      "p_id": 1,
+      "value_id": 1,
+      "mode_id": 2,
+      "mapping_id": 240,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335",
+            "actuator_id": 2
+          }
+        ],
+        "sensors": []
+      },
+      "parameters": {
+        "flow_rate": 4.0
+      },
+      "control_strategy": null,
+      "setpoint_source": null
+    },
+    {
+      "state_id": 11,
+      "p_id": 1,
+      "value_id": 1,
+      "mode_id": 1,
+      "mapping_id": 200,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+            "actuator_id": 2
+          }
+        ],
+        "sensors": [
+          {
+            "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+            "sensor_id": 2
+          }
+        ]
+      },
+      "parameters": {
+        "target_pressure_bar": 12.0,
+        "hysteresis_bar": 0.15
+      },
+      "control_strategy": null,
+      "setpoint_source": null
+    },
+    {
+      "state_id": 12,
+      "p_id": 2,
+      "value_id": 2,
+      "mode_id": 1,
+      "mapping_id": 250,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+            "actuator_id": 3
+          }
+        ],
+        "sensors": []
+      },
+      "parameters": {
+        "rpm": 300
+      },
+      "control_strategy": null,
+      "setpoint_source": null
+    },
+    {
+      "state_id": 13,
+      "p_id": 1,
+      "value_id": 2,
+      "mode_id": 1,
+      "mapping_id": 260,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+            "actuator_id": 1
+          }
+        ],
+        "sensors": [
+          {
+            "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+            "sensor_id": 1
+          }
+        ]
+      },
+      "parameters": {
+        "target_temp_c": 570.0
+      },
+      "control_strategy": null,
+      "setpoint_source": null
+    },
+    {
+      "state_id": 14,
+      "p_id": 3,
+      "value_id": 2,
+      "mode_id": 1,
+      "mapping_id": 100,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+            "actuator_id": 4
+          }
+        ],
+        "sensors": [
+          {
+            "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+            "sensor_id": 3
+          }
+        ]
+      },
+      "parameters": {
+        "target_temp_c": 80.0,
+        "ramp_rate_c_per_min": 2.0,
+        "hold_duration_s": 300
+      },
+      "control_strategy": {
+        "type": "control_method",
+        "method_id": 1
+      },
+      "setpoint_source": null
+    },
+    {
+      "state_id": 15,
+      "p_id": 4,
+      "value_id": 1,
+      "mode_id": 2,
+      "mapping_id": 210,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335",
+            "actuator_id": 1
+          },
+          {
+            "controller_uuid": "cded47f3-4dc5-5439-9aa6-73f0fff5e335",
+            "actuator_id": 2
+          }
+        ],
+        "sensors": [
+          {
+            "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+            "sensor_id": 1
+          },
+          {
+            "controller_uuid": "82fb9eb0-3fd9-5db5-a04e-7f06e405cfdf",
+            "sensor_id": 1
+          }
+        ]
+      },
+      "parameters": {
+        "target_pressure_bar": 1.5,
+        "hysteresis_bar": 0.1,
+        "target_level": 50.0,
+        "max_pressure": 6.0
+      },
+      "control_strategy": {
+        "type": "control_method",
+        "method_id": 2
+      },
+      "setpoint_source": null
+    },
+    {
+      "state_id": 16,
+      "p_id": 5,
+      "value_id": 2,
+      "mode_id": 1,
+      "mapping_id": 220,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+            "actuator_id": 2
+          }
+        ],
+        "sensors": [
+          {
+            "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+            "sensor_id": 1
+          }
+        ]
+      },
+      "parameters": {
+        "target_temp_c": 25.0,
+        "max_pressure": 6.0
+      },
+      "control_strategy": {
+        "type": "control_method",
+        "method_id": 7
+      },
+      "setpoint_source": null
+    },
+    {
+      "state_id": 17,
+      "p_id": 6,
+      "value_id": 2,
+      "mode_id": 1,
+      "mapping_id": 270,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+            "actuator_id": 1
+          }
+        ],
+        "sensors": [
+          {
+            "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+            "sensor_id": 2
+          }
+        ]
+      },
+      "parameters": {
+        "target_temp_c": 120.0,
+        "duration_s": 600,
+        "stirring_rpm": 350,
+        "timer_id": 100
+      },
+      "control_strategy": {
+        "type": "control_method",
+        "method_id": 7
+      },
+      "setpoint_source": null
+    },
+    {
+      "state_id": 18,
+      "p_id": 1,
+      "value_id": 1,
+      "mode_id": 2,
+      "mapping_id": 100,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+            "actuator_id": 1
+          }
+        ],
+        "sensors": [
+          {
+            "controller_uuid": "d11032fa-33db-56de-a4ed-7e16cca3ded7",
+            "sensor_id": 3
+          }
+        ]
+      },
+      "parameters": {
+        "target_temp_c": 555.0
+      },
+      "control_strategy": {
+        "type": "PID",
+        "pid_config_id": 1,
+        "anti_windup": true,
+        "out_min": 4.0,
+        "out_max": 20.0,
+        "sample_time": 0.1,
+        "error_scale": 1.0,
+        "dt_max_s": 0.5
+      },
+      "setpoint_source": null
+    },
+    {
+      "state_id": 20,
+      "p_id": 1,
+      "value_id": 1,
+      "mode_id": 1,
+      "mapping_id": 200,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+            "actuator_id": 4
+          }
+        ],
+        "sensors": [
+          {
+            "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+            "sensor_id": 6
+          }
+        ]
+      },
+      "parameters": {
+        "target_pressure_bar": 12.0,
+        "hysteresis_bar": 0.03
+      },
+      "control_strategy": null,
+      "setpoint_source": null
+    },
+    {
+      "state_id": 21,
+      "p_id": 1,
+      "value_id": 1,
+      "mode_id": 1,
+      "mapping_id": 100,
+      "io_refs": {
+        "actuators": [
+          {
+            "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+            "actuator_id": 5
+          }
+        ],
+        "sensors": [
+          {
+            "controller_uuid": "62671112-766c-59ed-b0ff-30a49d48f747",
+            "sensor_id": 5
+          }
+        ]
+      },
+      "parameters": {
+        "target_temp_c": 200.0
+      },
+      "control_strategy": {
+        "type": "PID",
+        "pid_config_id": 2,
+        "anti_windup": true,
+        "out_min": 0.0,
+        "out_max": 10.0,
+        "sample_time": 0.1,
+        "error_scale": 1.0,
+        "dt_max_s": 0.5
+      },
+      "setpoint_source": null
+    }
+  ]
+}

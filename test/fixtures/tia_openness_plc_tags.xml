@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Document>
+  <SW.Tags.PlcTag ID="1">
+    <AttributeList>
+      <Name>input_temperature</Name>
+      <LogicalAddress>%ID0</LogicalAddress>
+      <DataTypeName>Real</DataTypeName>
+      <Comment>
+        <MultiLanguageText Culture="en-US">Reactor inlet</MultiLanguageText>
+      </Comment>
+    </AttributeList>
+  </SW.Tags.PlcTag>
+  <SW.Tags.PlcTag ID="2">
+    <AttributeList>
+      <Name>output_valve</Name>
+      <LogicalAddress>%QX0.3</LogicalAddress>
+      <DataTypeName>Bool</DataTypeName>
+    </AttributeList>
+  </SW.Tags.PlcTag>
+  <SW.Tags.PlcTag ID="3">
+    <AttributeList>
+      <Name>process_actual_pv</Name>
+      <LogicalAddress>DB10.DBD4</LogicalAddress>
+      <DataTypeName>Real</DataTypeName>
+    </AttributeList>
+  </SW.Tags.PlcTag>
+  <SW.Tags.PlcTag ID="4">
+    <AttributeList>
+      <Name>valve_command</Name>
+      <LogicalAddress>DB10.DBW8</LogicalAddress>
+      <DataTypeName>Int</DataTypeName>
+    </AttributeList>
+  </SW.Tags.PlcTag>
+  <SW.Tags.PlcTag ID="5">
+    <AttributeList>
+      <Name>maintenance_feedback</Name>
+      <LogicalAddress>%M10.0</LogicalAddress>
+      <DataTypeName>Bool</DataTypeName>
+      <Comment>
+        <MultiLanguageText Culture="en-US">[sensor] maintenance signal</MultiLanguageText>
+      </Comment>
+    </AttributeList>
+  </SW.Tags.PlcTag>
+  <SW.Tags.PlcTag ID="6">
+    <AttributeList>
+      <Name>batch_name</Name>
+      <LogicalAddress>DB10.DBB20</LogicalAddress>
+      <DataTypeName>String[10]</DataTypeName>
+      <Direction>Read</Direction>
+    </AttributeList>
+  </SW.Tags.PlcTag>
+</Document>

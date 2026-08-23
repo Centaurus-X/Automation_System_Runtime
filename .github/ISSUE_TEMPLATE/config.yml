@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and design discussions
+    url: https://github.com/Centaurus-X/Automation_System_Runtime/discussions
+    about: Ask questions or discuss architecture without confidential details.
+  - name: Security vulnerability
+    url: https://github.com/Centaurus-X/Automation_System_Runtime/security/advisories/new
+    about: Report vulnerabilities privately; never disclose them in a public issue.

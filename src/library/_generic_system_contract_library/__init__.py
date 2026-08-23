@@ -1,0 +1,74 @@
+# -*- coding: utf-8 -*-
+
+# src/library/_generic_system_contract_library/__init__.py
+
+"""Canonical public facade for Automation System Contract Major 2."""
+
+from src.library import _generic_type_library as type_authority
+from src.library._generic_system_contract_library import config_sharding_contracts
+from src.library._generic_system_contract_library import protocol_contracts
+from src.library._generic_system_contract_library import persistence_contracts
+from src.library._generic_system_contract_library import authority_flow_contracts
+from src.library._generic_system_contract_library import module_contracts
+from src.library._generic_system_contract_library import errors
+
+
+CONTRACTS_MAJOR = protocol_contracts.CONTRACTS_MAJOR
+CONTRACTS_MINOR = protocol_contracts.CONTRACTS_MINOR
+CONTRACTS_VERSION = protocol_contracts.CONTRACTS_VERSION
+TYPE_SCHEMA_VERSION = type_authority.TYPE_SCHEMA_VERSION
+CONFIG_NORM_VERSION = type_authority.CONFIG_NORM_VERSION
+CAPABILITIES = protocol_contracts.CAPABILITIES
+OPERATION_FORMAT = config_sharding_contracts.OPERATION_FORMAT
+AUTHORITY_SEMANTICS = authority_flow_contracts.AUTHORITY_SEMANTICS
+
+make_error = errors.make_error
+make_success = errors.make_success
+is_error = errors.is_error
+
+canonical_bytes = type_authority.canonical_bytes
+canonical_text = type_authority.canonical_text
+canonical_dumps = type_authority.canonical_dumps
+decode_json_bytes = type_authority.decode_json_bytes
+fingerprint = type_authority.fingerprint
+json_ready = type_authority.json_ready
+config_fingerprint = type_authority.config_fingerprint
+
+make_envelope = protocol_contracts.make_envelope
+validate_envelope = protocol_contracts.validate_envelope
+parse_timestamp = protocol_contracts.parse_timestamp
+utc_now = protocol_contracts.utc_now
+normalize_token = protocol_contracts.normalize_token
+certificate_uri = protocol_contracts.certificate_uri
+identity_matches_certificate = protocol_contracts.identity_matches_certificate
+authenticated_principal = protocol_contracts.authenticated_principal
+normalize_registration = protocol_contracts.normalize_registration
+selected_protocol = protocol_contracts.selected_protocol
+contract_compatibility = protocol_contracts.contract_compatibility
+effective_site_id = protocol_contracts.effective_site_id
+validate_config_proposal_payload = protocol_contracts.validate_config_proposal_payload
+
+apply_operations = config_sharding_contracts.apply_operations
+diff_configs = config_sharding_contracts.diff_configs
+validate_scope_operations = config_sharding_contracts.validate_scope_operations
+normalize_legacy_ingress = config_sharding_contracts.normalize_legacy_ingress
+
+validate_authority_mode = authority_flow_contracts.validate_authority_mode
+make_scope_head = authority_flow_contracts.make_scope_head
+make_proposal = authority_flow_contracts.make_proposal
+validate_proposal = authority_flow_contracts.validate_proposal
+authorize_proposal = authority_flow_contracts.authorize_proposal
+apply_proposal = authority_flow_contracts.apply_proposal
+relay_proposal = authority_flow_contracts.relay_proposal
+begin_authority_transfer = authority_flow_contracts.begin_authority_transfer
+advance_authority_transfer = authority_flow_contracts.advance_authority_transfer
+begin_restore = authority_flow_contracts.begin_restore
+advance_restore = authority_flow_contracts.advance_restore
+check_execution_epoch = authority_flow_contracts.check_execution_epoch
+
+config_compatibility = config_sharding_contracts
+config_graph = config_sharding_contracts
+entity_registry = config_sharding_contracts
+scope_diff = config_sharding_contracts
+shard_library = config_sharding_contracts
+type_library = type_authority
