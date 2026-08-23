@@ -104,6 +104,200 @@ flowchart LR
 The detailed ownership model, startup/shutdown order, data flow and failure
 semantics are documented in [Architecture](docs/ARCHITECTURE.md).
 
+<details>
+<summary><strong>Explore the internal component architecture and event flow</strong></summary>
+
+> GitHub renders this diagram with its native Mermaid viewer. The standalone
+> source is available as
+> [`runtime-internal-components.mmd`](docs/diagrams/runtime-internal-components.mmd).
+
+```mermaid
+flowchart TB
+    subgraph field["Field I/O and connection ownership"]
+        Sensors["Sensors"]
+        Actuators["Actuators"]
+        Bus["PLC / fieldbus / gateway"]
+        Adapters["Protocol adapter factory<br/>Modbus · S7 · OPC UA · EtherNet/IP<br/>KNX · PROFINET · PROFIBUS gateway"]
+        ConnectionOwner["Connection-owner thread<br/>serialized read / write lifecycle"]
+        ControllerWorker["Controller worker<br/>polling · actuator queue · readback"]
+
+        Sensors --> Bus --> Actuators
+        Bus <-->|read / write| Adapters
+        Adapters <-->|protocol calls| ConnectionOwner
+        ConnectionOwner <-->|poll / actuator task + readback| ControllerWorker
+    end
+
+    subgraph eventPlane["Deterministic event plane"]
+        ValueStore[("Central runtime value store<br/>writer token · sequence · quality")]
+        ValuePersistence[("JSON-backed sensor persistence<br/>asynchronous flush")]
+        Ingress["queue_event_send"]
+        PriorityBroker["Priority Event Broker<br/>heap ordered by priority + sequence"]
+        Router["Event Router thread<br/>primary route · broadcast plan · batching"]
+        TMQueue["queue_event_pc<br/>Thread Management ingress"]
+        ControllerQueue["queue_event_mbc<br/>controller ingress"]
+        ExternalMirror["External event mirror<br/>telemetry · FSM state · feedback"]
+
+        ControllerWorker -->|sensor commit| ValueStore
+        ValueStore -.->|asynchronous snapshot| ValuePersistence
+        ValueStore -->|SENSOR_VALUE_UPDATE| Ingress
+        ControllerWorker -->|ACTUATOR_FEEDBACK| Ingress
+        Ingress --> PriorityBroker --> Router
+        Router -->|primary dispatch| TMQueue
+        Router -->|controller target| ControllerQueue
+        Router -->|post-primary broadcast| ExternalMirror
+    end
+
+    subgraph execution["Local execution and state ownership"]
+        TM["Thread Management<br/>management · controller ingress · result threads"]
+        Pipeline["Per-sensor coalescing pipeline<br/>revision-bound execution"]
+        Results["Pool result queue<br/>stale-result checks · retry / fallback"]
+        Safety["Actuator safety boundary<br/>ownership · revision · fencing · interlocks"]
+        CrossWorker["Cross Worker thread<br/>single writer · fact cache · snapshot"]
+        CrossIO["Cross I/O adapter<br/>UUID-only actuator intent"]
+
+        subgraph Pool["Generic priority ThreadPool · timeouts · cancellation · scaling"]
+            direction LR
+            Rules["Generic Rule Engine<br/>facts → decisions / action plans"]
+            Automation["Automation Engine<br/>persistent per-sensor slots"]
+            FSM["Finite-State Machines<br/>serialized per process instance"]
+            CrossCompute["Cross rules / FSM / automation<br/>copy-only pool jobs"]
+        end
+
+        TMQueue --> TM
+        ControllerQueue --> TM
+        TM -->|SENSOR_VALUE_UPDATE| Pipeline
+        Pipeline -->|submit rule job| Rules
+        TM -->|serialized FSM_EVENT| FSM
+        Rules -->|decision result| Results
+        Results -->|submit next automation stage| Automation
+        Automation -->|actuator tasks| Results
+        FSM -->|immutable machine result| Results
+        Results --> Safety
+        Safety -->|ACTUATOR_TASK| ControllerWorker
+
+        Router -->|local fact broadcast| CrossWorker
+        CrossWorker -->|copy-only job| CrossCompute
+        CrossCompute -->|result queue| CrossWorker
+        CrossWorker --> CrossIO
+        CrossIO -->|local target| Safety
+    end
+
+    subgraph authority["Configuration authority and durability"]
+        LocalFile["Canonical JSON configuration"]
+        FileSync["Config file sync<br/>stable diff · file WAL · receipt"]
+        CommandIngress["Authenticated external proposal"]
+        SEM["SEM single writer<br/>schema · policy · atomic action plan"]
+        DataCenter[("Data Center<br/>copy-on-write config heap")]
+        Rollout["Synchronous rollout<br/>revision + fingerprint"]
+        Durable[("SQLite authority head · journal<br/>mirror and actuator outboxes")]
+        Coordinator["Distributed Coordinator<br/>authority · registry · relay state"]
+        MQTTBoundary["MQTT boundary<br/>asynchronous convergence"]
+
+        LocalFile --> FileSync --> SEM
+        CommandIngress --> SEM
+        Results -->|Rule Engine action plan| SEM
+        SEM -->|authorized commit| DataCenter
+        DataCenter --> Rollout
+        Rollout --> TM
+        Rollout --> CrossWorker
+        SEM -->|post-commit evidence| Coordinator
+        Coordinator <--> Durable
+        ExternalMirror --> MQTTBoundary
+        Coordinator <--> MQTTBoundary
+        CrossIO -->|remote owner route| Coordinator
+    end
+```
+
+The diagram follows the implemented queues and ownership rules: pool workers
+operate on detached inputs, results return through a dedicated result queue,
+FSM events remain serialized per process instance, and only controller owners
+reach a protocol connection. SEM owns configuration mutation; actuator writes
+pass a separate ownership, revision, fencing and interlock boundary.
+
+</details>
+
+<details>
+<summary><strong>Explore the external communication and gateway architecture</strong></summary>
+
+> GitHub renders this diagram with its native Mermaid viewer. The standalone
+> source is available as
+> [`runtime-external-communications.mmd`](docs/diagrams/runtime-external-communications.mmd).
+
+```mermaid
+flowchart TB
+    subgraph controlPlane["External control and coordination plane"]
+        direction LR
+        Engineering["Engineering / operator client"]
+        Master["Master control plane<br/>registry · relay · mirror · audit"]
+        Broker["MQTT / I/O broker<br/>TLS / mTLS · ACL · QoS 1"]
+        RemoteWorker["Remote owner worker<br/>remote facts · actuator execution"]
+        Monitoring["Monitoring / observability consumer"]
+
+        Engineering -->|approved intent| Master
+        Master <-->|commands · ACKs · registry · mirrors| Broker
+        RemoteWorker <-->|facts · UUID intents · results| Broker
+        Broker -->|events / status| Monitoring
+    end
+
+    subgraph worker["Automation System Runtime · node-local authority"]
+        direction TB
+        MQTT["MQTT interface<br/>envelope validation · HMAC · expiry · dedupe"]
+        CommandQueue["Bounded MQTT command queue<br/>single command dispatcher"]
+        Coordinator["Distributed Coordinator<br/>proposal · authority · registry · relay"]
+        Outbox[("SQLite operation journal<br/>mirror + actuator outboxes")]
+        SEM["SEM single writer<br/>schema · safety policy · atomic commit"]
+        Config[("Canonical Node V9 / Cross V8<br/>authority head + fingerprint")]
+        Runtime["Thread Management<br/>Rule Engine · FSM · Automation"]
+        Cross["Hardware-free Cross Worker<br/>validated fact cache"]
+        EventRouter["Priority Event Router<br/>telemetry and feedback mirror"]
+        Controller["Controller owner<br/>poll · write · readback"]
+        Connection["Connection-owner thread<br/>one serialized protocol lifecycle"]
+        Adapter["Protocol adapter boundary"]
+
+        MQTT --> CommandQueue
+        CommandQueue -->|distributed commands| Coordinator
+        CommandQueue -->|external config commands| SEM
+        Coordinator -->|canonical scope operations| SEM
+        SEM -->|commit| Config
+        Config -->|synchronous rollout| Runtime
+        Config -->|isolated cross rollout| Cross
+        Coordinator <--> Outbox
+        Runtime --> Controller
+        Runtime <--> Cross
+        Cross -->|remote UUID-only intent| Coordinator
+        Coordinator -->|owner-side execution| Runtime
+        Controller --> Connection --> Adapter
+        Controller -->|sensor + readback events| EventRouter
+        EventRouter -->|telemetry / feedback| MQTT
+        Coordinator <--> MQTT
+    end
+
+    subgraph plant["External plant and protocol boundary"]
+        direction LR
+        PLC["PLC / remote I/O controller"]
+        Gateway["Industrial gateway<br/>PROFINET RT / PROFIBUS gateway"]
+        FieldIO["Sensors · actuators · drives · valves"]
+
+        PLC <--> FieldIO
+        Gateway <--> FieldIO
+    end
+
+    Broker <-->|node commands · ACKs · events · heartbeat| MQTT
+    Adapter <-->|Modbus TCP · S7 · OPC UA<br/>EtherNet/IP · KNX/IP| PLC
+    Adapter <-->|gateway protocol| Gateway
+
+    Runtime -.->|local loop remains active<br/>during broker or master outage| Controller
+    Master -.->|never writes hardware directly| Broker
+```
+
+The external plane is deliberately asynchronous. The Master and MQTT/I/O
+broker distribute intent, registry state and evidence, while the owner Worker
+resolves UUIDs to its canonical local bus coordinates and performs the final
+safety check, fieldbus write and readback. Broker or Master loss degrades
+convergence and remote coordination, not the already-authorized local loop.
+
+</details>
+
 ## Quick start
 
 ### Requirements

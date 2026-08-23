@@ -41,6 +41,34 @@ The MQTT transport is not a synchronization point in this path. A transport
 outage is represented as a degraded external state while local ownership and
 automation remain available.
 
+## Component and event-flow map
+
+The public overview contains two native Mermaid views that remain collapsed by
+default: the [internal component source](diagrams/runtime-internal-components.mmd)
+and the [external communication source](diagrams/runtime-external-communications.mmd).
+They were reconstructed against the runtime entry points rather than inferred
+from product terminology alone.
+
+| Runtime concern | Implemented responsibility | Primary source anchors |
+|---|---|---|
+| Bootstrap and lifecycle | Builds shared queues and the value store, then starts the Data Center, Event Router, SEM, MQTT, Distributed Coordinator, file sync, Thread Management and Cross Worker in dependency order. | `src/system/bootstrap_runtime_interface.py`, `src/system/bootstrap_system_interface.py` |
+| Event ingress and routing | Drains `queue_event_send` in bounded batches, orders events in the heap-based Priority Event Broker, performs deterministic primary dispatch and only then executes broadcast mirrors. | `src/core/_event_router.py`, `src/library/_event_interface.py` |
+| Local orchestration | Owns the management, controller-ingress and pool-result threads; coalesces pending sensor work by sensor identity and rejects or retries stale results against the active config revision. | `src/core/thread_management.py` |
+| Parallel execution | Executes prioritized Rule Engine, Automation, FSM and Cross jobs with configurable worker limits, queue and execution timeouts, cancellation and controlled shutdown. Results return through one dedicated result queue. | `src/library/_generic_thread_pool.py` |
+| Rule, FSM and automation state | Evaluates detached facts, serializes FSM work per process instance and preserves per-sensor Automation state behind explicit locks. Rule action plans return to SEM; actuator tasks enter the actuator safety boundary. | `src/library/_generic_rule_engine.py`, `src/library/_generic_finite_state_machine.py`, `src/library/_automation_engine.py` |
+| Controller ownership | Gives each controller an isolated worker queue while a connection-owner thread serializes one protocol connection. Sensor commits precede `SENSOR_VALUE_UPDATE`; actuator success requires write plus readback evidence. | `src/core/_worker_thread.py`, `src/core/_controller_thread.py`, `src/adapter/_connection_thread.py` |
+| Adapter boundary | Resolves protocol factories for Modbus TCP, S7, OPC UA, EtherNet/IP, KNX/IP, PROFINET RT and PROFIBUS gateways without moving ownership into the adapter. | `src/adapter/_connection_registry.py`, `src/adapter/fieldbus/`, `src/adapter/plc/` |
+| Configuration authority | Converts local file changes or authenticated proposals to canonical scope operations, applies schema and safety policy, commits through the SEM single writer and synchronously rolls the accepted revision into runtime owners. | `src/core/config_file_sync.py`, `src/core/state_event_management.py`, `src/library/_generic_data_center.py` |
+| Cross execution | Keeps one single-writer Cross thread and fact cache; pool jobs receive copies and return results by queue. Only UUID actuator intent leaves the Cross runtime. | `src/core/_cross_worker_thread.py`, `src/adapter/_cross_io_adapter.py` |
+| External convergence | Validates MQTT envelopes, identity, age, expiry, HMAC and deduplication; persists authority, proposal, mirror and actuator-operation state before retryable asynchronous exchange. | `src/interfaces/mqtt_interface.py`, `src/core/distributed_coordinator.py`, `src/library/_distributed_operation_store.py` |
+
+The diagrams distinguish two safety-relevant write paths that are easy to
+conflate. SEM is the single writer for configuration and Rule Engine action
+plans. Hardware tasks are instead canonicalized at the owner Worker and pass
+ownership, revision, fencing, allowlist, limit and interlock checks before they
+enter the controller-owned queue. Neither path gives the Master, MQTT broker,
+Cross Worker or protocol adapter independent field-write authority.
+
 ## Configuration and authority
 
 Active node configuration uses a flat, entity-keyed V9 storage contract.

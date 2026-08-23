@@ -81,6 +81,14 @@ AUTOMATION_PROFILE=standalone ./run_worker.sh --preflight
 | Parallelität | isolierte Controller-Owner, Event Router, Thread Pool |
 | Feldprotokolle | Adaptergrenzen für Modbus, S7/TIA, OPC UA, EtherNet/IP, KNX/IP, PROFINET und PROFIBUS-Gateway |
 
+Die englische Hauptseite enthält zwei standardmäßig eingeklappte, von GitHub
+nativ gerenderte Mermaid-Ansichten: den vollständigen
+[internen Komponenten- und Eventfluss](docs/diagrams/runtime-internal-components.mmd)
+sowie die
+[externe Master-, MQTT/I/O-Broker- und Gateway-Kommunikation](docs/diagrams/runtime-external-communications.mmd).
+Die quellenbezogene Komponentendiagnose steht in der
+[Architekturdokumentation](docs/ARCHITECTURE.md#component-and-event-flow-map).
+
 ## Nachweis
 
 Der Original-Release dokumentiert 54/54 bestandene ausführbare Testdateien auf

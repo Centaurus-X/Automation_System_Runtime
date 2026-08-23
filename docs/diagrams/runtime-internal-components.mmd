@@ -1,0 +1,94 @@
+flowchart TB
+    subgraph field["Field I/O and connection ownership"]
+        Sensors["Sensors"]
+        Actuators["Actuators"]
+        Bus["PLC / fieldbus / gateway"]
+        Adapters["Protocol adapter factory<br/>Modbus · S7 · OPC UA · EtherNet/IP<br/>KNX · PROFINET · PROFIBUS gateway"]
+        ConnectionOwner["Connection-owner thread<br/>serialized read / write lifecycle"]
+        ControllerWorker["Controller worker<br/>polling · actuator queue · readback"]
+
+        Sensors --> Bus --> Actuators
+        Bus <-->|read / write| Adapters
+        Adapters <-->|protocol calls| ConnectionOwner
+        ConnectionOwner <-->|poll / actuator task + readback| ControllerWorker
+    end
+
+    subgraph eventPlane["Deterministic event plane"]
+        ValueStore[("Central runtime value store<br/>writer token · sequence · quality")]
+        ValuePersistence[("JSON-backed sensor persistence<br/>asynchronous flush")]
+        Ingress["queue_event_send"]
+        PriorityBroker["Priority Event Broker<br/>heap ordered by priority + sequence"]
+        Router["Event Router thread<br/>primary route · broadcast plan · batching"]
+        TMQueue["queue_event_pc<br/>Thread Management ingress"]
+        ControllerQueue["queue_event_mbc<br/>controller ingress"]
+        ExternalMirror["External event mirror<br/>telemetry · FSM state · feedback"]
+
+        ControllerWorker -->|sensor commit| ValueStore
+        ValueStore -.->|asynchronous snapshot| ValuePersistence
+        ValueStore -->|SENSOR_VALUE_UPDATE| Ingress
+        ControllerWorker -->|ACTUATOR_FEEDBACK| Ingress
+        Ingress --> PriorityBroker --> Router
+        Router -->|primary dispatch| TMQueue
+        Router -->|controller target| ControllerQueue
+        Router -->|post-primary broadcast| ExternalMirror
+    end
+
+    subgraph execution["Local execution and state ownership"]
+        TM["Thread Management<br/>management · controller ingress · result threads"]
+        Pipeline["Per-sensor coalescing pipeline<br/>revision-bound execution"]
+        Results["Pool result queue<br/>stale-result checks · retry / fallback"]
+        Safety["Actuator safety boundary<br/>ownership · revision · fencing · interlocks"]
+        CrossWorker["Cross Worker thread<br/>single writer · fact cache · snapshot"]
+        CrossIO["Cross I/O adapter<br/>UUID-only actuator intent"]
+
+        subgraph Pool["Generic priority ThreadPool · timeouts · cancellation · scaling"]
+            direction LR
+            Rules["Generic Rule Engine<br/>facts → decisions / action plans"]
+            Automation["Automation Engine<br/>persistent per-sensor slots"]
+            FSM["Finite-State Machines<br/>serialized per process instance"]
+            CrossCompute["Cross rules / FSM / automation<br/>copy-only pool jobs"]
+        end
+
+        TMQueue --> TM
+        ControllerQueue --> TM
+        TM -->|SENSOR_VALUE_UPDATE| Pipeline
+        Pipeline -->|submit rule job| Rules
+        TM -->|serialized FSM_EVENT| FSM
+        Rules -->|decision result| Results
+        Results -->|submit next automation stage| Automation
+        Automation -->|actuator tasks| Results
+        FSM -->|immutable machine result| Results
+        Results --> Safety
+        Safety -->|ACTUATOR_TASK| ControllerWorker
+
+        Router -->|local fact broadcast| CrossWorker
+        CrossWorker -->|copy-only job| CrossCompute
+        CrossCompute -->|result queue| CrossWorker
+        CrossWorker --> CrossIO
+        CrossIO -->|local target| Safety
+    end
+
+    subgraph authority["Configuration authority and durability"]
+        LocalFile["Canonical JSON configuration"]
+        FileSync["Config file sync<br/>stable diff · file WAL · receipt"]
+        CommandIngress["Authenticated external proposal"]
+        SEM["SEM single writer<br/>schema · policy · atomic action plan"]
+        DataCenter[("Data Center<br/>copy-on-write config heap")]
+        Rollout["Synchronous rollout<br/>revision + fingerprint"]
+        Durable[("SQLite authority head · journal<br/>mirror and actuator outboxes")]
+        Coordinator["Distributed Coordinator<br/>authority · registry · relay state"]
+        MQTTBoundary["MQTT boundary<br/>asynchronous convergence"]
+
+        LocalFile --> FileSync --> SEM
+        CommandIngress --> SEM
+        Results -->|Rule Engine action plan| SEM
+        SEM -->|authorized commit| DataCenter
+        DataCenter --> Rollout
+        Rollout --> TM
+        Rollout --> CrossWorker
+        SEM -->|post-commit evidence| Coordinator
+        Coordinator <--> Durable
+        ExternalMirror --> MQTTBoundary
+        Coordinator <--> MQTTBoundary
+        CrossIO -->|remote owner route| Coordinator
+    end

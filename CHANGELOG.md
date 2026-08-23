@@ -8,6 +8,13 @@ and versions follow semantic versioning where applicable.
 
 ## [Unreleased]
 
+### Added
+
+- Two default-collapsed Mermaid architecture views for the internal component
+  and event flow and the external Master, MQTT/I/O-broker and industrial
+  gateway boundaries, including standalone `.mmd` sources and a source-anchored
+  component map.
+
 ### Planned
 
 - Profile-aware locked optional dependencies and SBOM generation.

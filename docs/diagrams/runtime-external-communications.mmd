@@ -1,0 +1,64 @@
+flowchart TB
+    subgraph controlPlane["External control and coordination plane"]
+        direction LR
+        Engineering["Engineering / operator client"]
+        Master["Master control plane<br/>registry · relay · mirror · audit"]
+        Broker["MQTT / I/O broker<br/>TLS / mTLS · ACL · QoS 1"]
+        RemoteWorker["Remote owner worker<br/>remote facts · actuator execution"]
+        Monitoring["Monitoring / observability consumer"]
+
+        Engineering -->|approved intent| Master
+        Master <-->|commands · ACKs · registry · mirrors| Broker
+        RemoteWorker <-->|facts · UUID intents · results| Broker
+        Broker -->|events / status| Monitoring
+    end
+
+    subgraph worker["Automation System Runtime · node-local authority"]
+        direction TB
+        MQTT["MQTT interface<br/>envelope validation · HMAC · expiry · dedupe"]
+        CommandQueue["Bounded MQTT command queue<br/>single command dispatcher"]
+        Coordinator["Distributed Coordinator<br/>proposal · authority · registry · relay"]
+        Outbox[("SQLite operation journal<br/>mirror + actuator outboxes")]
+        SEM["SEM single writer<br/>schema · safety policy · atomic commit"]
+        Config[("Canonical Node V9 / Cross V8<br/>authority head + fingerprint")]
+        Runtime["Thread Management<br/>Rule Engine · FSM · Automation"]
+        Cross["Hardware-free Cross Worker<br/>validated fact cache"]
+        EventRouter["Priority Event Router<br/>telemetry and feedback mirror"]
+        Controller["Controller owner<br/>poll · write · readback"]
+        Connection["Connection-owner thread<br/>one serialized protocol lifecycle"]
+        Adapter["Protocol adapter boundary"]
+
+        MQTT --> CommandQueue
+        CommandQueue -->|distributed commands| Coordinator
+        CommandQueue -->|external config commands| SEM
+        Coordinator -->|canonical scope operations| SEM
+        SEM -->|commit| Config
+        Config -->|synchronous rollout| Runtime
+        Config -->|isolated cross rollout| Cross
+        Coordinator <--> Outbox
+        Runtime --> Controller
+        Runtime <--> Cross
+        Cross -->|remote UUID-only intent| Coordinator
+        Coordinator -->|owner-side execution| Runtime
+        Controller --> Connection --> Adapter
+        Controller -->|sensor + readback events| EventRouter
+        EventRouter -->|telemetry / feedback| MQTT
+        Coordinator <--> MQTT
+    end
+
+    subgraph plant["External plant and protocol boundary"]
+        direction LR
+        PLC["PLC / remote I/O controller"]
+        Gateway["Industrial gateway<br/>PROFINET RT / PROFIBUS gateway"]
+        FieldIO["Sensors · actuators · drives · valves"]
+
+        PLC <--> FieldIO
+        Gateway <--> FieldIO
+    end
+
+    Broker <-->|node commands · ACKs · events · heartbeat| MQTT
+    Adapter <-->|Modbus TCP · S7 · OPC UA<br/>EtherNet/IP · KNX/IP| PLC
+    Adapter <-->|gateway protocol| Gateway
+
+    Runtime -.->|local loop remains active<br/>during broker or master outage| Controller
+    Master -.->|never writes hardware directly| Broker
